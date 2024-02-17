@@ -1,0 +1,5 @@
+<%= form_with url: finance_records_path, local: true, multipart: true do |form| %>
+  <%= form.file_field :file1 %>
+  <%= form.file_field :file2 %>
+  <%= form.submit 'Upload Files' %>
+<% end %>
