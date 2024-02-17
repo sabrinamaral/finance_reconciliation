@@ -1,0 +1,22 @@
+<%= form_with url: finance_records_path, local: true, multipart: true do |form| %>
+  <%= form.file_field :file1 %>
+  <%= form.file_field :file2 %>
+  <%= form.submit 'Upload Files' %>
+<% end %>
+
+<table>
+  <tbody>
+    <% @differences.each do |item| %>
+      <tr>
+        <%= item %>
+        <% item.each_value do |value| %>
+          <td><%= value %></td>
+        <% end %>
+      <tr>
+        <% item.each_value do |value| %>
+          <td><%= value %></td>
+        <% end %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
