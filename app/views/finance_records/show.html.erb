@@ -1,0 +1,36 @@
+<% if @csv_data1.any? && @csv_data2.any? %>
+  <%= button_to 'Delete All Records', { action: 'delete_all' }, method: :delete, data: { confirm: 'Are you sure?' } %>
+<h2>Records CSV 1</h2>
+  <table>
+    <tr>
+      <th>Date</th>
+      <th>Description</th>
+      <th>Amount</th>
+    </tr>
+    <% @csv_data1.each do |record| %>
+      <tr>
+        <td><%= record.date %></td>
+        <td><%= record.description %></td>
+        <td><%= record.amount %></td>
+      </tr>
+    <% end %>
+  </table>
+<h2>Records CSV 2</h2>
+<table>
+    <tr>
+      <th>Date</th>
+      <th>Description</th>
+      <th>Amount</th>
+    </tr>
+    <% @csv_data2.each do |record| %>
+      <tr>
+        <td><%= record.date %></td>
+        <td><%= record.description %></td>
+        <td><%= record.amount %></td>
+      </tr>
+    <% end %>
+  </table>
+
+<% else %>
+  <p>No data to display.</p>
+<% end %>

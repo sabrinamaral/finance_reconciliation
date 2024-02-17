@@ -3,20 +3,3 @@
   <%= form.file_field :file2 %>
   <%= form.submit 'Upload Files' %>
 <% end %>
-
-<table>
-  <tbody>
-    <% @differences.each do |item| %>
-      <tr>
-        <%= item %>
-        <% item.each_value do |value| %>
-          <td><%= value %></td>
-        <% end %>
-      <tr>
-        <% item.each_value do |value| %>
-          <td><%= value %></td>
-        <% end %>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
