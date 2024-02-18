@@ -30,17 +30,17 @@ class FinanceRecordsController < ApplicationController
   end
 
   def save_data_to_model(file, model)
-    File.readlines(file).drop(1).each do |line|
-      input = line.strip.split(';')
-      amount = (input[3] && input[3].tr('R$', '').tr(',', '.').to_f) || 0.0
+    CSV.foreach(file, headers: true) do |row|
+      amount = row.fields[2..3].join.tr('"', '').tr('R$', '').tr(',', '.').to_f || 0.0
 
       unless amount.zero? || amount.nil?
         obj_data = {
-          date: input[0],
-          description: input[1],
+          date: row[0],
+          description: row[1],
           amount: amount
         }
       end
+
       record = model.new(obj_data)
       unless record.save
         puts "Failed to save record: #{record.errors.full_messages.join(", ")}"
