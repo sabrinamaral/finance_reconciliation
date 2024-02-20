@@ -68,4 +68,5 @@ group :test do
   gem "selenium-webdriver"
 end
 
+gem 'bootstrap', '~> 4.3.1'
 gem 'simple_form'
