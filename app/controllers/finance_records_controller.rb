@@ -4,11 +4,27 @@ class FinanceRecordsController < ApplicationController
   def new
   @file1 = FinanceRecord.new
   @file2 = FinanceRecord2.new
-    end
+  end
 
   def show
     @csv_data1 = FinanceRecord.all
     @csv_data2 = FinanceRecord2.all
+
+    @results = {}
+
+    @csv_data1.each do |record1|
+      match = @csv_data2.find { |record2| record1.date == record2.date && record1.amount == record2.amount }
+      if match
+        @results[record1.id] = true
+      else
+        @results[record1.id] = false
+      end
+    end
+
+    @csv_data2.each do |record2|
+      match = @csv_data1.find { |record1| record2.date == record1.date && record2.amount == record1.amount }
+      @results[record2.id] = match.present? unless @results.key?(record2.id)
+    end
   end
 
   def create
