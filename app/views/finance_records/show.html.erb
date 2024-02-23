@@ -10,9 +10,9 @@
     <% @csv_data1.each do |record| %>
       <div >
         <tr>
-          <td class = "<%= @results[record.id] ? 'match' : 'different'  %>"><%= record.date %></td>
-          <td class = "<%= @results[record.id] ? 'match' : 'different'  %>"><%= record.description %></td>
-          <td class = "<%= @results[record.id] ? 'match' : 'different'  %>"><%= record.amount %></td>
+          <td class = "<%= @results[record] ? 'match' : 'different'  %>"><%= record.date %></td>
+          <td class = "<%= @results[record] ? 'match' : 'different'  %>"><%= record.description %></td>
+          <td class = "<%= @results[record] ? 'match' : 'different'  %>"><%= record.amount %></td>
         </tr>
       </div>
     <% end %>
@@ -26,9 +26,9 @@
     </tr>
     <% @csv_data2.each do |record| %>
       <tr>
-        <td class = "<%= @results[record.id] ? 'match' : 'different'  %>"><%= record.date %></td>
-        <td class = "<%= @results[record.id] ? 'match' : 'different'  %>"><%= record.description %></td>
-        <td class = "<%= @results[record.id] ? 'match' : 'different'  %>"><%= record.amount %></td>
+        <td class = "<%= @results[record] ? 'match' : 'different'  %>"><%= record.date %></td>
+        <td class = "<%= @results[record] ? 'match' : 'different'  %>"><%= record.description %></td>
+        <td class = "<%= @results[record] ? 'match' : 'different'  %>"><%= record.amount %></td>
       </tr>
     <% end %>
   </table>
