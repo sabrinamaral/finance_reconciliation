@@ -10,21 +10,7 @@ class FinanceRecordsController < ApplicationController
     @csv_data1 = FinanceRecord.all
     @csv_data2 = FinanceRecord2.all
 
-    @results = {}
-
-    @csv_data1.each do |record1|
-      match = @csv_data2.find { |record2| record1.date == record2.date && record1.amount == record2.amount }
-      if match
-        @results[record1.id] = true
-      else
-        @results[record1.id] = false
-      end
-    end
-
-    @csv_data2.each do |record2|
-      match = @csv_data1.find { |record1| record2.date == record1.date && record2.amount == record1.amount }
-      @results[record2.id] = match.present? unless @results.key?(record2.id)
-    end
+    match(@csv_data1, @csv_data2)
   end
 
   def create
@@ -62,5 +48,26 @@ class FinanceRecordsController < ApplicationController
         puts "Failed to save record: #{record.errors.full_messages.join(", ")}"
       end
     end
+  end
+
+  def match (csv_data1, csv_data2)
+    @results = {}
+
+    csv_data1.each do |record1|
+      match = csv_data2.find { |record2| record1.date == record2.date && record1.amount == record2.amount }
+        @results[record1] = false
+        if match
+          @results[record1] = true
+        end
+    end
+
+    csv_data2.each do |record2|
+      match = csv_data1.find { |record1| record2.date == record1.date && record2.amount == record1.amount }
+        @results[record2] = false
+        if match
+          @results[record2] = true
+        end
+    end
+
   end
 end
