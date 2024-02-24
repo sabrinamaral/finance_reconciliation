@@ -20,9 +20,23 @@ body {
 }
 
 .match {
-  background-color: green;
+  background-color: #2a9d8f;
 }
 
 .different {
-  background-color: yellow;
+  background-color: #edede9;
+}
+
+.title {
+  text-transform: uppercase;
+  font-size: 16px;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  color: #6c757d;
+  text-align: left;
+}
+
+.main-title {
+  font-size: 20px;
+  text-align: center;
 }
