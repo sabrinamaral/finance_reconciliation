@@ -34,7 +34,7 @@ class FinanceRecordsController < ApplicationController
 
   def save_data_to_db(file, model)
     CSV.foreach(file, headers: true) do |row|
-      amount = row.fields[2..3].join.tr('"', '').tr('R$', '').tr(',', '.').to_f || 0.0
+      amount = row.fields[2]&.tr('.', '')&.tr(',', '.')&.strip&.to_f || 0.0
 
       unless amount.zero? || amount.nil?
         obj_data = {
