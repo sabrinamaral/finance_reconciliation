@@ -3,21 +3,32 @@
     <%= button_to 'Delete All Records', { action: 'delete_all' }, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-warning"%>
     <div class="row justify-content-start">
       <div class="col">
-        <h3 class="title">Records CSV 2</h3>
+        <h3 class="title">Records CSV 1</h3>
         <table class="table table-secondary table-sm table-striped" data-controller="highlight-rows">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Description</th>
-              <th>Amount</th>
-            </tr>
-          </thead>
+          <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Amount</th>
+          </tr>
           <tbody>
             <% @csv_data1.each do |record| %>
+              <% next if record.date.blank? && record.description.blank? && record.amount.blank?%>
               <tr data-action="click->highlight-rows#changeColor">
-                <td class = "<%= @results[record] ? 'match' : 'different'  %>"><%= record.date %></td>
-                <td class = "<%= @results[record] ? 'match' : 'different'  %>"><%= record.description %></td>
-                <td class = "<%= @results[record] ? 'match' : 'different'  %>"><%= record.amount %></td>
+                <td class = "<%= record.reconciled ? 'match' : 'different'   %>">
+                  <div class="row-height">
+                    <%= record.date %>
+                  </div>
+                </td>
+                <td class = "<%= record.reconciled ? 'match' : 'different'   %>">
+                  <div class="row-height">
+                    <%= record.description %>
+                  </div>
+                </td>
+                <td class = "<%= record.reconciled ? 'match' : 'different'   %>">
+                  <div class="row-height">
+                    <%= record.amount %>
+                  </div>
+                </td>
               </tr>
             <% end %>
           </tbody>
@@ -32,10 +43,23 @@
             <th>Amount</th>
           </tr>
           <% @csv_data2.each do |record| %>
+            <% next if record.date.blank? && record.description.blank? && record.amount.blank?%>
             <tr data-action="click->highlight-rows#changeColor">
-              <td class = "<%= @results[record] ? 'match' : 'different'  %>"><%= record.date %></td>
-              <td class = "<%= @results[record] ? 'match' : 'different'  %>"><%= record.description %></td>
-              <td class = "<%= @results[record] ? 'match' : 'different'  %>"><%= record.amount %></td>
+              <td class = "<%= record.reconciled ? 'match' : 'different' %>">
+                <div class="row-height">
+                  <%= record.date %>
+                </div>
+              </td>
+              <td class = "<%= record.reconciled ? 'match' : 'different' %>">
+                <div class="row-height">
+                  <%= record.description %>
+                </div>
+              </td>
+              <td class = "<%= record.reconciled ? 'match' : 'different' %>">
+                <div class="row-height">
+                  <%= record.amount %>
+                </div>
+              </td>
             </tr>
           <% end %>
         </table>
