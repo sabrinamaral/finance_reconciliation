@@ -50,24 +50,30 @@ class FinanceRecordsController < ApplicationController
     end
   end
 
-  def match (csv_data1, csv_data2)
-    @results = {}
+  def match(csv_data1, csv_data2)
 
     csv_data1.each do |record1|
-      match = csv_data2.find { |record2| record1.date == record2.date && record1.amount == record2.amount }
-        @results[record1] = false
-        if match
-          @results[record1] = true
-        end
+      match = csv_data2.find do |record2|
+        record1[:date] == record2[:date] &&
+        record1[:amount] == record2[:amount] && !record2[:reconciled]
+      end
+      if match
+        match[:reconciled] = true
+        match.save
+      end
     end
 
     csv_data2.each do |record2|
-      match = csv_data1.find { |record1| record2.date == record1.date && record2.amount == record1.amount }
-        @results[record2] = false
-        if match
-          @results[record2] = true
-        end
+      match = csv_data1.find do |record1|
+          record2[:date] == record1[:date] &&
+          record2[:amount] == record1[:amount] &&
+          !record1[:reconciled]
+      end
+      if match
+        match[:reconciled] = true
+        match.save
+      end
     end
-
   end
+
 end
