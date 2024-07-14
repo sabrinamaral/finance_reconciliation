@@ -1,4 +1,5 @@
 class FinanceRecordsController < ApplicationController
+
   require 'csv'
 
   def new
@@ -14,11 +15,13 @@ class FinanceRecordsController < ApplicationController
   end
 
   def create
-    file1 = params[:file1].path
-    file2 = params[:file2].path
+    @file1 = params[:file1]
+    @file2 = params[:file2]
 
-    save_data_to_db(file1, FinanceRecord)
-    save_data_to_db(file2, FinanceRecord2)
+    return unless validate_csv_file
+
+    save_data_to_db(@file1, FinanceRecord) if @file1.respond_to?(:path)
+    save_data_to_db(@file2, FinanceRecord2) if @file2.respond_to?(:path)
 
     redirect_to action: :show
   end
@@ -76,4 +79,23 @@ class FinanceRecordsController < ApplicationController
     end
   end
 
+  private
+
+  def validate_csv_file
+    if @file1.present? && @file2.present?
+      content_type1 = @file1.content_type
+      content_type2 = @file2.content_type
+      if (content_type1 == 'text/csv') && (content_type2 == 'text/csv')
+        true
+      else
+        flash.now[:alert] = 'Please upload CSV files only.'
+        render :new, status: :unprocessable_entity
+        false
+      end
+    else
+      flash.now[:alert] = 'Please upload both files.'
+      render :new, status: :unprocessable_entity
+      false
+    end
+  end
 end
