@@ -3,8 +3,11 @@ class FinanceRecordsController < ApplicationController
   require 'csv'
 
   def new
-  @file1 = FinanceRecord.new
-  @file2 = FinanceRecord2.new
+    if session[:user_id]
+      @user = User.find_by(id: session[:user_id])
+    end
+    @file1 = FinanceRecord.new
+    @file2 = FinanceRecord2.new
   end
 
   def show
