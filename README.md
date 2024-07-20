@@ -1,24 +1,29 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+- Ruby version
+  "3.1.2"
 
-Things you may want to cover:
+- Rails version
+  "~> 7.1.1"
 
-* Ruby version
+- System dependencies
+  'bootstrap', '~> 4.3.1'
+  'simple_form'
 
-* System dependencies
+- How to use this project:
+  To use this project in development mode:
+  ⌗ Clone the repository into your machine.
+  https://github.com/sabrinamaral/finance_reconciliation
+  ⌗ Run bundle install (to install the gems)
+  ⌗ Run yarn install (to install the JS packages)
+  ⌗ Go to the next steps bellow to configure the DB
 
-* Configuration
+- Database creation
+  ⌗ Run rails db:create
 
-* Database creation
+- Database initialization
+  ⌗ Run rails db:migrate
 
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+- Running the app in the development mode
+  ⌗ Run rails server
+  ⌗ Open localhost:3000 into your browser
