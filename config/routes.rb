@@ -5,6 +5,9 @@ Rails.application.routes.draw do
   post 'finance_records', to: 'finance_records#create'
   delete 'finance_records', to: 'finance_records#delete_all'
 
+  get "password", to: "passwords#edit", as: :edit_password
+  patch "password", to: "passwords#update"
+
   get "sign_up", to: "users#new"
   post "sign_up", to: "users#create"
 
