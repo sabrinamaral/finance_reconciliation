@@ -1,4 +1,4 @@
-class FinanceRecordsController < ApplicationController
+class ReconciliationsController < ApplicationController
 
   require 'csv'
 

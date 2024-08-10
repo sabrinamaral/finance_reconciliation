@@ -1,7 +1,7 @@
 <div class="container text-center mt-5">
   <h1 class="title main-title">CSV Reconciliation</h1>
   <hr>
-  <%= form_with url: finance_records_path, local: true, multipart: true do |form| %>
+  <%= form_with url: reconciliations_path, local: true, multipart: true do |form| %>
     <%= form.file_field :file1 %>
     <%= form.file_field :file2 %>
     <%= form.submit 'Upload Files', class:"btn btn-primary" %>

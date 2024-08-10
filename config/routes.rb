@@ -1,9 +1,9 @@
 Rails.application.routes.draw do
-  root 'finance_records#new'
+  root 'reconciliations#new'
 
-  get 'finance_records/show'
-  post 'finance_records', to: 'finance_records#create'
-  delete 'finance_records', to: 'finance_records#delete_all'
+  get 'reconciliations/show'
+  post 'reconciliations', to: 'reconciliations#create'
+  delete 'reconciliations', to: 'reconciliations#delete_all'
 
   get "password", to: "passwords#edit", as: :edit_password
   patch "password", to: "passwords#update"
