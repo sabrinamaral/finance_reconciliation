@@ -1,9 +1,22 @@
 <div class="container text-center mt-5">
-  <h1 class="title main-title">CSV Reconciliation</h1>
-  <hr>
-  <%= form_with url: reconciliations_path, local: true, multipart: true do |form| %>
-    <%= form.file_field :file1 %>
-    <%= form.file_field :file2 %>
-    <%= form.submit 'Upload Files', class:"btn btn-primary" %>
-  <% end %>
+  <div class="py-4">
+    <h2 class="title">CSV Reconciliation</h2>
+    <%= form_with url: reconciliations_path, local: true, multipart: true do |form| %>
+      <div class="d-flex align-items-start justify-content-center">
+        <%= form.file_field :file1, class: 'mb-3' %>
+        <%= form.file_field :file2, class: 'mb-3' %>
+        <%= form.submit 'Upload Files', class: 'btn btn-outline-primary w-25' %>
+      </div>
+    <% end %>
+  </div>
+  <div class="py-4">
+    <hr>
+    <h2 class="title">CSV Cash Flow</h2>
+    <%= form_with url: cash_flows_path, local: true, multipart: true do |form| %>
+      <div class="d-flex align-items-start justify-content-around">
+        <%= form.file_field :file, class: 'mb-3' %>
+        <%= form.submit 'Upload Files', class: 'btn btn-outline-primary w-25' %>
+      </div>
+    <% end %>
+  </div>
 </div>
