@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
   root 'reconciliations#new'
 
+  get 'cash_flows', to: 'cash_flows#new'
+
   get 'reconciliations/show'
   post 'reconciliations', to: 'reconciliations#create'
   delete 'reconciliations', to: 'reconciliations#delete_all'
