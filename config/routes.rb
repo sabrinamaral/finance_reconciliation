@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   root 'reconciliations#new'
 
-  get 'cash_flows', to: 'cash_flows#new'
+  resources :cash_flows, only: [:new, :create, :index]
 
   get 'reconciliations/show'
   post 'reconciliations', to: 'reconciliations#create'
