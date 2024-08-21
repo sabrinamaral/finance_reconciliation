@@ -7,7 +7,7 @@ class ReconciliationsController < ApplicationController
     @file2 = FinanceRecord2.new
   end
 
-  def show
+  def index
     @csv_data1 = FinanceRecord.all
     @csv_data2 = FinanceRecord2.all
 
@@ -23,7 +23,7 @@ class ReconciliationsController < ApplicationController
     save_data_to_db(@file1, FinanceRecord) if @file1.respond_to?(:path)
     save_data_to_db(@file2, FinanceRecord2) if @file2.respond_to?(:path)
 
-    redirect_to action: :show
+    redirect_to action: :index
   end
 
   def delete_all

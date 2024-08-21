@@ -2,10 +2,13 @@ Rails.application.routes.draw do
   root 'reconciliations#new'
 
   resources :cash_flows, only: [:new, :create, :index]
+  resources :reconciliations, only: [:new, :create, :index]
 
-  get 'reconciliations/show'
-  post 'reconciliations', to: 'reconciliations#create'
-  delete 'reconciliations', to: 'reconciliations#delete_all'
+  resources :reconciliations do
+    collection do
+      delete 'delete_all'
+    end
+  end
 
   get "password", to: "passwords#edit", as: :edit_password
   patch "password", to: "passwords#update"
