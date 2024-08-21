@@ -2,10 +2,10 @@
   <div class="py-4">
     <h2 class="title">CSV Reconciliation</h2>
     <%= form_with url: reconciliations_path, local: true, multipart: true do |form| %>
-      <div class="d-flex align-items-start justify-content-center">
-        <%= form.file_field :file1, class: 'mb-3' %>
-        <%= form.file_field :file2, class: 'mb-3' %>
-        <%= form.submit 'Upload Files', class: 'btn btn-outline-primary w-25' %>
+      <div class="form-group d-flex">
+        <%= form.file_field :file1, class: 'form-control mr-2' %>
+        <%= form.file_field :file2, class: 'form-control mr-2' %>
+        <%= form.submit 'Upload Files', class: 'btn btn-primary' %>
       </div>
     <% end %>
   </div>
@@ -13,10 +13,10 @@
     <hr>
     <h2 class="title">CSV Cash Flow</h2>
     <%= form_with model: CashFlow.new, local: true, multipart: true, data: { turbo: false } do |form| %>
-      <div class="form-group">
-        <%= form.file_field :file, class: 'form-control' %>
+      <div class="form-group d-flex">
+        <%= form.file_field :file, class: 'form-control mr-2' %>
+        <%= form.submit 'Upload Files', class: 'btn btn-primary' %>
       </div>
-      <%= form.submit 'Upload Files', class: 'btn btn-primary' %>
     <% end %>
   </div>
 </div>
