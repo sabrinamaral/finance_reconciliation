@@ -1,11 +1,11 @@
 <% if @csv_data1.any? && @csv_data2.any? %>
   <div class="container mt-4">
-    <%= button_to 'Delete All Records', { action: 'delete_all' }, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-warning"%>
+    <%= button_to 'Delete All Records', { action: 'delete_all' }, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-secondary"%>
     <div class="row justify-content-start">
       <div class="col">
         <h3 class="title">Records CSV 1</h3>
-        <table class="table table-secondary table-sm table-striped" data-controller="highlight-rows">
-          <tr>
+        <table class="table table-light table-sm table-striped" data-controller="highlight-rows">
+          <tr class="table-dark">
             <th>Date</th>
             <th>Description</th>
             <th>Amount</th>
@@ -36,8 +36,8 @@
       </div>
       <div class="col">
         <h3 class="title">Records CSV 2</h3>
-        <table class="table table-secondary table-sm table-striped" data-controller="highlight-rows">
-          <tr>
+        <table class="table table-light table-sm table-striped" data-controller="highlight-rows">
+          <tr class="table-dark">
             <th>Date</th>
             <th>Description</th>
             <th>Amount</th>
