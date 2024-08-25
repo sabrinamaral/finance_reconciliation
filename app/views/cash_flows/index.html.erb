@@ -5,10 +5,11 @@
       <th>Date</th>
       <th>Description</th>
       <th>Amount</th>
+      <th></th>
     </tr>
     <tbody>
       <% @cash_flow_records.each do |record| %>
-        <tr>
+        <tr id="record-<%= record.id%>">
           <td>
             <%= record.date.strftime("%d/%m/%Y") %>
           </td>
@@ -17,6 +18,35 @@
           </td>
           <td>
             <%= number_to_currency(record.amount, unit: "R$ ", separator: ",", delimiter: ".", precision: 2) %>
+          </td>
+          <td class="d-flex justify-content-around align-items-center" data-controller="icons">
+            <i class="fa-solid fa-pencil" data-action="click->icons#edit" data-record-id="<%= record.id %>"></i>
+            <i class="fa-solid fa-trash-can" data-action="click->icons#delete"></i>
+          </td>
+        </tr>
+        <tr id="edit-form-<%= record.id %>" style="display: none;">
+          <td colspan="4">
+            <%=  form_with(model: record, id: "form-#{record.id}", local: false) do |form| %>
+            <div class="form-row d-flex justify-content-between align-items-center">
+              <div>
+                <%= form.date_field :date %>
+              </div>
+              <div>
+                <%= form.text_field :description %>
+              </div>
+              <div>
+                <%= form.number_field :amount %>
+              </div>
+              <div class="d-flex justify-content-around align-items-center mr-3" data-controller="icons">
+                <div class="mr-2">
+                  <button type="submit" class="save-edit-icon text-success" data-action="click->icons#saveEdit" data-record-id="<%= record.id%>"><i class="fa-solid fa-circle-check"></i></button>
+                </div>
+                <div>
+                  <button type="button" class="cancel-edit-icon text-danger" data-action="click->icons#cancelEdit" data-record-id="<%= record.id %>"><i class="fa-solid fa-xmark"></i></button>
+                <div>
+              </div>
+            </div>
+            <% end %>
           </td>
         </tr>
       <% end %>
