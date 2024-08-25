@@ -48,3 +48,10 @@ body {
 .form-control {
   padding: 0.2rem !important; /* Adjust the padding value as needed */
 }
+
+.save-edit-icon,
+.cancel-edit-icon {
+  border: none;
+  background-color: transparent;
+  font-size: 20px;
+}

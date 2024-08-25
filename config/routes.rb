@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   root 'reconciliations#new'
 
-  resources :cash_flows, only: [:new, :create, :index]
+  resources :cash_flows, only: [:new, :create, :index, :update]
   resources :reconciliations, only: [:new, :create, :index]
 
   resources :reconciliations do

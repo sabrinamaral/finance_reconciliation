@@ -23,7 +23,24 @@ class CashFlowsController < ApplicationController
     @cash_flow_records = CashFlow.all
   end
 
+  def edit
+    @cash_flow_records = CashFlow.find(params[:id])
+  end
+
+  def update
+    @cash_flow_records = CashFlow.find(params[:id])
+    if @cash_flow_records.update(cash_flow_params)
+      redirect_to cash_flows_path, notice: 'Record was successfully updated.'
+    else
+      render :index
+    end
+  end
+
   private
+
+  def cash_flow_params
+    params.require(:cash_flow).permit(:date, :description, :amount)
+  end
 
   def validate_csv(file)
     content_type = file.content_type
