@@ -1,6 +1,13 @@
-<h1>Cash Flow</h1>
+<div class="py-4">
+  <%= form_with model: CashFlow.new, local: true, multipart: true, data: { turbo: false } do |form| %>
+    <div class="form-group d-flex">
+      <%= form.file_field :file, class: 'form-control mr-2' %>
+      <%= form.submit 'Upload Files', class: 'btn btn-primary' %>
+    </div>
+  <% end %>
+</div>
 <% if @cash_flow_records.any?  %>
-  <table class="table table-light table-sm table-striped" data-controller="highlight-rows">
+  <table class="table table-light table-sm" data-controller="highlight-rows">
     <tr class="table-dark">
       <th>Date</th>
       <th>Description</th>
@@ -9,19 +16,19 @@
     </tr>
     <tbody>
       <% @cash_flow_records.each do |record| %>
-        <tr id="record-<%= record.id%>">
-          <td>
+        <tr id="record-<%= record.id%>" class="border-bottom">
+          <td class="border-bottom">
             <%= record.date.strftime("%d/%m/%Y") %>
           </td>
-          <td>
+          <td class="border-bottom">
             <%= record.description %>
           </td>
-          <td>
+          <td class="border-bottom">
             <%= number_to_currency(record.amount, unit: "R$ ", separator: ",", delimiter: ".", precision: 2) %>
           </td>
           <td class="d-flex justify-content-around align-items-center" data-controller="icons">
             <i class="fa-solid fa-pencil" data-action="click->icons#edit" data-record-id="<%= record.id %>"></i>
-            <i class="fa-solid fa-trash-can" data-action="click->icons#delete"></i>
+            <i class="fa-solid fa-trash-can" data-action="click->icons#delete" data-record-id="<%= record.id %>"></i>
           </td>
         </tr>
         <tr id="edit-form-<%= record.id %>" style="display: none;">
@@ -39,7 +46,7 @@
               </div>
               <div class="d-flex justify-content-around align-items-center mr-3" data-controller="icons">
                 <div class="mr-2">
-                  <button type="submit" class="save-edit-icon text-success" data-action="click->icons#saveEdit" data-record-id="<%= record.id%>"><i class="fa-solid fa-circle-check"></i></button>
+                  <button type="submit" class="save-edit-icon text-success" data-record-id="<%= record.id%>"><i class="fa-solid fa-circle-check"></i></button>
                 </div>
                 <div>
                   <button type="button" class="cancel-edit-icon text-danger" data-action="click->icons#cancelEdit" data-record-id="<%= record.id %>"><i class="fa-solid fa-xmark"></i></button>
