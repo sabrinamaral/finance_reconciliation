@@ -20,7 +20,7 @@ class CashFlowsController < ApplicationController
   end
 
   def index
-    @cash_flow_records = CashFlow.all
+    @cash_flow_records = CashFlow.order(date: :asc)
   end
 
   def edit
@@ -33,6 +33,16 @@ class CashFlowsController < ApplicationController
       redirect_to cash_flows_path, notice: 'Record was successfully updated.'
     else
       render :index
+    end
+  end
+
+  def destroy
+    @cash_flow_record = CashFlow.find(params[:id])
+    if @cash_flow_record.destroy
+      render json: {message: 'Record was successfully deleted.'}, status: :ok
+
+    else
+      render json: {message: 'Failed to delete the record'}, status: :unprocessable_entity
     end
   end
 
