@@ -8,6 +8,8 @@
     <%= csp_meta_tag %>
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <link rel="preload" href="<%= asset_path('application.css') %>" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="<%= asset_path('application.css') %>"></noscript>
     <%= javascript_importmap_tags %>
   </head>
 
@@ -17,5 +19,17 @@
       <%=  render partial: "shared/flash" %>
       <%= yield %>
     </div>
+
+  <script>
+    document.addEventListener("turbo:load", function() {
+      const flashMessages = document.querySelectorAll(".flash-container .alert");
+      flashMessages.forEach((flashMessage) => {
+        setTimeout(() => {
+          flashMessage.remove();
+        }, 3000); // 3000 milliseconds = 3 seconds
+      });
+    });
+  </script>
+
   </body>
 </html>
