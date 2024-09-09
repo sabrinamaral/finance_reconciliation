@@ -46,6 +46,12 @@ class CashFlowsController < ApplicationController
     end
   end
 
+  def set_balance
+    @balance = params[:starting_balance]
+    session[:starting_balance] = @balance
+    redirect_to cash_flows_path, notice: 'Starting balance was successfully set.'
+  end
+
   private
 
   def cash_flow_params
