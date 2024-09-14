@@ -4,7 +4,7 @@ Rails.application.routes.draw do
   resources :cash_flows, only: [:create, :index, :update, :destroy]
 
   post "set_balance", to: "cash_flows#set_balance"
-  post "balance_reset", to: "cash_flows#balance_reset"
+  post "reset_balance", to: "cash_flows#reset_balance"
 
   resources :reconciliations, only: [:new, :create, :index]
   resources :reconciliations do
