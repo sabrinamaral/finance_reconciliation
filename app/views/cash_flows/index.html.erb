@@ -21,19 +21,27 @@
 </table>
 <% if @cash_flow_records.any?  %>
   <table class="table table-light table-sm" data-controller="highlight-rows">
+    <%# HEADERS %>
     <tr class="table-dark">
       <th>Date</th>
       <th>Description</th>
       <th>Amount</th>
       <th></th>
+      <th></th>
     </tr>
     <tbody>
+      <%# TRANSACTIONS %>
       <tr>
         <td class="border-bottom"></td>
         <td class="border-bottom">Starting balance</td>
+        <td class="border-bottom"></td>
         <td class="border-bottom"><%= number_to_currency(session[:starting_balance], unit: "R$ ", separator: ",", delimiter: ".", precision: 2) %></td>
-        <td class="border-bottom d-flex justify-content-center"><%= button_to 'reset balance', "balance_reset", method: :post, class: "btn btn-sm btn-outline-secondary" %></td>
+        <td class="border-bottom d-flex justify-content-center"><%= button_to 'reset balance', "reset_balance", method: :post, class: "btn btn-sm btn-outline-secondary", data: { action: 'click->balance-form#reset', balance_form_target: 'resetButton'} %></td>
       </tr>
+      <%# INITIALIZE RUNNING_BALANCE %>
+      <%= running_balance = session[:starting_balance].to_f %>
+
+      <%# ADD TRANSACTIONS %>
       <% @cash_flow_records.each do |record| %>
         <tr id="record-<%= record.id%>" class="border-bottom">
           <td class="border-bottom">
@@ -42,18 +50,34 @@
           <td class="border-bottom">
             <%= record.description %>
           </td>
-          <td class="border-bottom">
-            <%= number_to_currency(record.amount, unit: "R$ ", separator: ",", delimiter: ".", precision: 2) %>
-          </td>
+          <%# TRANSACTIONS TYPE EXPENSES / 0 %>
+            <% if record.transaction_type == 0 %>
+              <td class="border-bottom expense-color">
+                <%= number_to_currency(record.amount, unit: "R$ ", separator: ",", delimiter: ".", precision: 2) %>
+              </td>
+            <% else %>
+            <%# TRANSACTIONS TYPE RECEIVABLES / 1 %>
+              <td class="border-bottom">
+                <%= number_to_currency(record.amount, unit: "R$ ", separator: ",", delimiter: ".", precision: 2) %>
+              </td>
+            <% end %>
+            <%# SUM OR SUBTRACTION BASED ON TRANSACTION TYPE - EXPENSE OR INCOME %>
+          <% if record.transaction_type == 1 %>
+            <td class="border-bottom"><%= number_to_currency(running_balance += record.amount, unit: "R$ ", separator: ",", delimiter: ".", precision: 2) %></td>
+          <% else %>
+            <td class="border-bottom"><%=number_to_currency(running_balance -= record.amount, unit: "R$ ", separator: ",", delimiter: ".", precision: 2) %></td>
+          <% end %>
+          <%# EDIT AND DELETE ICONS %>
           <td class="d-flex justify-content-around align-items-center" data-controller="icons">
             <i class="fa-solid fa-pencil" data-action="click->icons#edit" data-record-id="<%= record.id %>"></i>
             <i class="fa-solid fa-trash-can" data-action="click->icons#delete" data-record-id="<%= record.id %>"></i>
           </td>
         </tr>
+        <%# HIDDEN FORM TO USE WHEN EDITING A TRANSACTION %>
         <tr id="edit-form-<%= record.id %>" style="display: none;">
-          <td colspan="4">
+          <td colspan="5">
             <%=  form_with(model: record, id: "form-#{record.id}", local: false) do |form| %>
-            <div class="form-row d-flex justify-content-between align-items-center">
+            <div class="form-row d-flex justify-content-around align-items-center">
               <div>
                 <%= form.date_field :date %>
               </div>

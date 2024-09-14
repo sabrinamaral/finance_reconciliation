@@ -52,6 +52,15 @@ class CashFlowsController < ApplicationController
     redirect_to cash_flows_path, notice: 'Starting balance was successfully set.'
   end
 
+  def reset_balance
+    session[:starting_balance] = 0
+    @balance = session[:starting_balance]
+    respond_to do |format|
+      format.json { head :no_content }
+      format.html { redirect_to cash_flows_path}
+    end
+  end
+
   private
 
   def cash_flow_params
