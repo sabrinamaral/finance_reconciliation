@@ -1,21 +1,26 @@
 class CashFlowsController < ApplicationController
+
   def new
     @cash_flow_records = CashFlow.all
   end
 
-
   def create
     unless params[:cash_flow].present? && params[:cash_flow][:file].present?
-      flash.now[:alert] = 'Please upload a file.'
-      render 'reconciliations/new', status: :unprocessable_entity
+      flash.now[:alert] = 'Please upload a CSV file.'
+      render 'cash_flows/index', status: :unprocessable_entity
       return
     end
 
     @csv_file = params[:cash_flow][:file]
+    result = CashFlow.import_from_csv(@csv_file)
 
     if validate_csv(@csv_file)
-      CashFlow.import_from_csv(@csv_file)
-      redirect_to cash_flows_path, notice: 'Cash flow records are successfully created.'
+      if result[:success]
+        flash[:notice] = 'Cash flow records are successfully created.'
+      else
+        flash[:alert] = result[:error]
+      end
+      redirect_to cash_flows_path
     end
   end
 
@@ -40,16 +45,21 @@ class CashFlowsController < ApplicationController
     @cash_flow_record = CashFlow.find(params[:id])
     if @cash_flow_record.destroy
       render json: {message: 'Record was successfully deleted.'}, status: :ok
-
     else
       render json: {message: 'Failed to delete the record'}, status: :unprocessable_entity
     end
   end
 
   def set_balance
+    # see the Rails - Step by step New Feature in the Notes programing file
     @balance = params[:starting_balance]
-    session[:starting_balance] = @balance
-    redirect_to cash_flows_path, notice: 'Starting balance was successfully set.'
+
+    if @balance.blank? || !is_number?(@balance)
+      render json: {message: 'Balance must be a valid number.'}, status: :unprocessable_entity
+    else
+      session[:starting_balance] = @balance
+      render json: { message: 'Balance was successfully set.'}
+    end
   end
 
   def reset_balance
@@ -72,9 +82,15 @@ class CashFlowsController < ApplicationController
     if (content_type == 'text/csv')
       true
     else
-      flash.now[:alert] = 'Please upload CSV files only.'
-      render 'reconciliations/new', status: :unprocessable_entity
       false
     end
+  end
+
+  def headers_match?(headers)
+    headers.sort == CashFlow::EXPECTED_HEADERS.sort
+  end
+
+  def is_number?(string)
+    true if Float(string) rescue false
   end
 end
