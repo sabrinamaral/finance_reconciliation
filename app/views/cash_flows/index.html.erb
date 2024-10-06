@@ -1,3 +1,4 @@
+<%# UPLOAD FILES %>
 <div class="py-4">
   <%= form_with model: CashFlow.new, local: true, multipart: true, data: { turbo: false } do |form| %>
     <div class="form-group d-flex">
@@ -6,11 +7,12 @@
     </div>
   <% end %>
 </div>
+<%# STARTING BALANCE %>
 <table class="table table-light table-sm" data-controller="highlight-rows">
   <tr class="d-flex justify-content-between">
     <th><button class="btn btn-sm btn-outline-secondary">new transaction</button></th>
     <th data-controller='balance-form'>
-      <%= form_with url: set_balance_path, method: :post, local: true, id: 'balance_form', data:  { turbo: false, action: 'submit->balance-form#submit', balance_form_target: 'form'} do |form| %>
+      <%= form_with url: set_balance_path, id: 'balance_form', data:  { turbo: false, action: 'submit->balance-form#submit', balance_form_target: 'form'} do |form| %>
         <div class="form-group d-flex">
           <%= form.text_field :starting_balance, class: 'form-control mr-2' %>
           <%= form.submit 'set balance', class: "btn btn-sm btn-outline-secondary" %>
@@ -19,33 +21,34 @@
     </th>
   </tr>
 </table>
-<% if @cash_flow_records.any?  %>
-  <table class="table table-light table-sm" data-controller="highlight-rows">
-    <%# HEADERS %>
-    <tr class="table-dark">
-      <th>Date</th>
-      <th>Description</th>
-      <th>Amount</th>
-      <th></th>
-      <th></th>
-    </tr>
-    <tbody>
-      <%# TRANSACTIONS %>
-      <tr>
-        <td class="border-bottom"></td>
-        <td class="border-bottom">Starting balance</td>
-        <td class="border-bottom"></td>
-        <td class="border-bottom"><%= number_to_currency(session[:starting_balance], unit: "R$ ", separator: ",", delimiter: ".", precision: 2) %></td>
-        <td class="border-bottom d-flex justify-content-center"><%= button_to 'reset balance', "reset_balance", method: :post, class: "btn btn-sm btn-outline-secondary", data: { action: 'click->balance-form#reset', balance_form_target: 'resetButton'} %></td>
-      </tr>
-      <%# INITIALIZE RUNNING_BALANCE %>
-      <%= running_balance = session[:starting_balance].to_f %>
 
-      <%# ADD TRANSACTIONS %>
-      <% @cash_flow_records.each do |record| %>
+<table class="table table-light table-sm" data-controller="highlight-rows">
+  <%# HEADERS %>
+  <tr class="table-dark">
+    <th>Date</th>
+    <th>Description</th>
+    <th>Amount</th>
+    <th>Balance</th>
+    <th></th>
+  </tr>
+  <tbody>
+    <%# RESET BALANCE %>
+    <tr>
+      <td class="border-bottom"></td>
+      <td class="border-bottom">Starting balance</td>
+      <td class="border-bottom"></td>
+      <td class="border-bottom"><%= number_to_currency(session[:starting_balance], unit: "R$ ", separator: ",", delimiter: ".", precision: 2) %></td>
+      <td class="border-bottom d-flex justify-content-center"><%= button_to 'reset balance', "reset_balance", method: :post, class: "btn btn-sm btn-outline-secondary", data: { action: 'click->balance-form#reset', balance_form_target: 'resetButton'} %></td>
+    </tr>
+    <%# INITIALIZE RUNNING_BALANCE %>
+    <% running_balance = session[:starting_balance].to_f %>
+
+    <%# ADD TRANSACTIONS %>
+    <% if  !@cash_flow_records.nil? && @cash_flow_records.any? %>
+      <% @cash_flow_records.each do | record | %>
         <tr id="record-<%= record.id%>" class="border-bottom">
           <td class="border-bottom">
-            <%= record.date.strftime("%d/%m/%Y") %>
+            <%= record.date.strftime("%d/%m/%y") %>
           </td>
           <td class="border-bottom">
             <%= record.description %>
@@ -77,31 +80,31 @@
         <tr id="edit-form-<%= record.id %>" style="display: none;">
           <td colspan="5">
             <%=  form_with(model: record, id: "form-#{record.id}", local: false) do |form| %>
-            <div class="form-row d-flex justify-content-around align-items-center">
-              <div>
-                <%= form.date_field :date %>
-              </div>
-              <div>
-                <%= form.text_field :description %>
-              </div>
-              <div>
-                <%= form.number_field :amount %>
-              </div>
-              <div class="d-flex justify-content-around align-items-center mr-3" data-controller="icons">
-                <div class="mr-2">
-                  <button type="submit" class="save-edit-icon text-success" data-record-id="<%= record.id%>"><i class="fa-solid fa-circle-check"></i></button>
+              <div class="form-row d-flex justify-content-around align-items-center">
+                <div>
+                  <%= form.date_field :date %>
                 </div>
                 <div>
-                  <button type="button" class="cancel-edit-icon text-danger" data-action="click->icons#cancelEdit" data-record-id="<%= record.id %>"><i class="fa-solid fa-xmark"></i></button>
+                  <%= form.text_field :description %>
+                </div>
                 <div>
+                  <%= form.number_field :amount %>
+                </div>
+                <div class="d-flex justify-content-around align-items-center mr-3" data-controller="icons">
+                  <div class="mr-2">
+                    <button type="submit" class="save-edit-icon text-success" data-record-id="<%= record.id%>"><i class="fa-solid fa-circle-check"></i></button>
+                  </div>
+                  <div>
+                    <button type="button" class="cancel-edit-icon text-danger" data-action="click->icons#cancelEdit" data-record-id="<%= record.id %>"><i class="fa-solid fa-xmark"></i></button>
+                  <div>
+                </div>
               </div>
-            </div>
             <% end %>
           </td>
         </tr>
       <% end %>
-    </tbody>
-  </table>
-<% else %>
-  <p>No data to display.</p>
-<% end %>
+    <% else %>
+      <p>No data to display.</p>
+    <% end %>
+  </tbody>
+</table>
