@@ -50,6 +50,12 @@ class CashFlowsController < ApplicationController
     end
   end
 
+  def delete_all
+    CashFlow.delete_all
+
+    redirect_to cash_flows_path, notice: 'All records have been deleted.'
+  end
+
   def set_balance
     # see the Rails - Step by step New Feature in the Notes programing file
     @balance = params[:starting_balance]
