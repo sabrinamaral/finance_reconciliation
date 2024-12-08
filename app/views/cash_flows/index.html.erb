@@ -21,7 +21,7 @@
     </th>
   </tr>
 </table>
-
+<%= button_to 'Delete All Records', { action: 'delete_all' }, method: :delete, data: { confirm: 'Are you sure?'}, class: "btn btn-outline-secondary mb-2"%>
 <table class="table table-light table-sm" data-controller="highlight-rows">
   <%# HEADERS %>
   <tr class="table-dark">
@@ -41,7 +41,6 @@
       <td class="border-bottom d-flex justify-content-center no-wrap"><%= button_to 'reset balance', "reset_balance", method: :post, class: "btn btn-sm btn-outline-secondary", data: { action: 'click->balance-form#reset', balance_form_target: 'resetButton'} %></td>
     </tr>
 
-    <%= button_to 'Delete All Records', delete_all_cash_flows_path, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-outline-secondary mb-2"%>
     <%# INITIALIZE RUNNING_BALANCE %>
     <% running_balance = session[:starting_balance].to_f %>
 
@@ -98,7 +97,7 @@
                   </div>
                   <div>
                     <button type="button" class="cancel-edit-icon text-danger" data-action="click->icons#cancelEdit" data-record-id="<%= record.id %>"><i class="fa-solid fa-xmark"></i></button>
-                  <div>
+                  </div>
                 </div>
               </div>
             <% end %>

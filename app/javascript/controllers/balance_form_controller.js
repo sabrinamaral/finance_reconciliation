@@ -32,7 +32,7 @@ export default class extends Controller {
         "X-CSRF-Token": document
           .querySelector('meta[name="csrf-token"]')
           .getAttribute("content"),
-        "Content-type": "application/jason",
+        "Content-type": "application/json",
       },
     }).then((response) => {
       if (response.ok) {
