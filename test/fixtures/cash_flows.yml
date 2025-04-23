@@ -4,10 +4,10 @@ one:
   date: 2024-08-13
   description: MyString
   amount: 9.99
-  type: 1
+  transaction_type: 1
 
 two:
   date: 2024-08-13
   description: MyString
   amount: 9.99
-  type: 1
+  transaction_type: 1

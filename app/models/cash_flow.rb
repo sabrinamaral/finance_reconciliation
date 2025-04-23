@@ -1,11 +1,16 @@
 class CashFlow < ApplicationRecord
   require 'csv'
-
   EXPECTED_HEADERS = %w[date description amount transaction_type].freeze
+
+  validates :date, presence: true
+  validates :description, presence: true
+  validates :amount, presence: true, numericality: true
+  validates :transaction_type, presence: true
+
 
   def self.import_from_csv(file)
     headers = nil
-    CSV.foreach(file.path, headers: true) do |row|
+    CSV.foreach(file, headers: true) do |row|
       if headers.nil?
         headers = row.headers.map(&:strip).map(&:underscore)
         unless headers_match?(headers)

@@ -5,23 +5,36 @@ class CashFlowsController < ApplicationController
   end
 
   def create
-    unless params[:cash_flow].present? && params[:cash_flow][:file].present?
+    unless params[:cash_flow].present?
       flash.now[:alert] = 'Please upload a CSV file.'
-      render 'cash_flows/index', status: :unprocessable_entity
+      @cash_flow_records = CashFlow.order(date: :asc) # Ensure transactions are loaded
+      render :index, status: :unprocessable_entity
       return
     end
 
     @csv_file = params[:cash_flow][:file]
+
+    # Check if the file has a valid content type
+    unless validate_csv(@csv_file)
+      flash[:alert] = 'Uploaded file must be a valid CSV format'
+      @cash_flow_records = CashFlow.order(date: :asc) # Ensure transactions are loaded
+      render :index, status: :unprocessable_entity
+      return
+    end
+
+    # Process the CSV file
     result = CashFlow.import_from_csv(@csv_file)
 
-    if validate_csv(@csv_file)
-      if result[:success]
-        flash[:notice] = 'Cash flow records are successfully created.'
-      else
-        flash[:alert] = result[:error]
-      end
-      redirect_to cash_flows_path
+    if result[:success]
+      flash[:notice] = 'Cash flow records are successfully created.'
+    else
+      flash[:alert] = result[:error] || 'CSV headers must be: date, description, amount, transaction_type.'
+      @cash_flow_records = CashFlow.order(date: :asc) # Ensure transactions are loaded
+      render :index, status: :unprocessable_entity
+      return
     end
+
+    redirect_to cash_flows_path
   end
 
   def index
@@ -37,14 +50,15 @@ class CashFlowsController < ApplicationController
     if @cash_flow_records.update(cash_flow_params)
       redirect_to cash_flows_path, notice: 'Record was successfully updated.'
     else
-      render :index
+      @cash_flow_records = CashFlow.all
+      render :index, status: :unprocessable_entity
     end
   end
 
   def destroy
     @cash_flow_record = CashFlow.find(params[:id])
     if @cash_flow_record.destroy
-      render json: {message: 'Record was successfully deleted.'}, status: :ok
+      render json: {message: 'Record was successfully deleted.' }, status: :ok
     else
       render json: {message: 'Failed to delete the record'}, status: :unprocessable_entity
     end
@@ -57,7 +71,6 @@ class CashFlowsController < ApplicationController
   end
 
   def set_balance
-    # see the Rails - Step by step New Feature in the Notes programing file
     @balance = params[:starting_balance]
 
     if @balance.blank? || !is_number?(@balance)
@@ -71,10 +84,7 @@ class CashFlowsController < ApplicationController
   def reset_balance
     session[:starting_balance] = 0
     @balance = session[:starting_balance]
-    respond_to do |format|
-      format.json { head :no_content }
-      format.html { redirect_to cash_flows_path}
-    end
+    redirect_to cash_flows_path, notice: 'Balance was successfully reset.'
   end
 
   private
@@ -84,12 +94,9 @@ class CashFlowsController < ApplicationController
   end
 
   def validate_csv(file)
-    content_type = file.content_type
-    if (content_type == 'text/csv')
-      true
-    else
-      false
-    end
+    return false  unless file.respond_to?(:content_type)
+      content_type = file.content_type
+      content_type == "text/csv"
   end
 
   def headers_match?(headers)

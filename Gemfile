@@ -66,6 +66,7 @@ group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
+  gem 'rails-controller-testing'
 end
 
 gem 'bootstrap', '~> 4.3.1'
@@ -73,3 +74,9 @@ gem 'bootstrap', '~> 4.3.1'
 gem "devise", "~> 4.9"
 
 gem 'dotenv-rails', groups: [:development, :test]
+
+# CSV
+gem 'csv'
+
+# These gems will no longer be part of the default gems starting from Ruby 3.5.0.
+gem 'ostruct'
