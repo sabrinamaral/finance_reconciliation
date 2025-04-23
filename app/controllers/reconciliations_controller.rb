@@ -1,10 +1,13 @@
+require 'csv'
 class ReconciliationsController < ApplicationController
-
-  require 'csv'
-
   def new
     @file1 = FinanceRecord.new
     @file2 = FinanceRecord2.new
+
+    respond_to do |format|
+      format.html { head :no_content}
+      format.json { render json: {file1: @file1, file2: @file2} }
+    end
   end
 
   def index
@@ -18,12 +21,17 @@ class ReconciliationsController < ApplicationController
     @file1 = params[:file1]
     @file2 = params[:file2]
 
-    return unless validate_csv_file
+    unless validate_csv_file
+      flash.now[:alert] ||= "Please upload both files"
+      render :index, status: :unprocessable_entity
+      return
+    end
 
     save_data_to_db(@file1, FinanceRecord) if @file1.respond_to?(:path)
     save_data_to_db(@file2, FinanceRecord2) if @file2.respond_to?(:path)
 
     redirect_to action: :index
+    return
   end
 
   def delete_all
@@ -79,8 +87,6 @@ class ReconciliationsController < ApplicationController
     end
   end
 
-  private
-
   def validate_csv_file
     if @file1.present? && @file2.present?
       content_type1 = @file1.content_type
@@ -88,13 +94,11 @@ class ReconciliationsController < ApplicationController
       if (content_type1 == 'text/csv') && (content_type2 == 'text/csv')
         true
       else
-        flash.now[:alert] = 'Please upload CSV files only.'
-        render :new, status: :unprocessable_entity
+        flash.now[:alert] = 'Please upload CSV files only'
         false
       end
     else
-      flash.now[:alert] = 'Please upload both files.'
-      render :new, status: :unprocessable_entity
+      flash.now[:alert] = 'Please upload both files'
       false
     end
   end
