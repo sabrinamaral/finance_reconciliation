@@ -1,0 +1,64 @@
+<div class="row justify-content-start">
+      <div class="col">
+        <table class="table table-light table-sm table-striped" data-controller="highlight-rows">
+          <thead class="table-secondary">
+            <th>Date</th>
+            <th>Description</th>
+            <th>Amount</th>
+          </thead>
+          <tbody class="table-group-divider">
+            <% @csv_data1.each do |record| %>
+              <% next if record.date.blank? && record.description.blank? && record.amount.blank?%>
+              <tr data-action="click->highlight-rows#changeColor">
+                <td class = "<%= record.reconciled ? 'match' : 'different'   %>">
+                  <div class="row-height">
+                    <%= record.date %>
+                  </div>
+                </td>
+                <td class = "<%= record.reconciled ? 'match' : 'different'   %>">
+                  <div class="row-height">
+                    <%= record.description %>
+                  </div>
+                </td>
+                <td class = "<%= record.reconciled ? 'match' : 'different'   %>">
+                  <div class="row-height">
+                    <%= record.amount %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <div class="col">
+        <table class="table table-light table-sm table-striped" data-controller="highlight-rows">
+          <thead class="table-secondary">
+            <th>Date</th>
+            <th>Description</th>
+            <th>Amount</th>
+          </thead>
+          <tbody class="table-group-divider">
+            <% @csv_data2.each do |record| %>
+              <% next if record.date.blank? && record.description.blank? && record.amount.blank?%>
+              <tr data-action="click->highlight-rows#changeColor">
+                <td class = "<%= record.reconciled ? 'match' : 'different' %>">
+                  <div class="row-height">
+                    <%= record.date %>
+                  </div>
+                </td>
+                <td class = "<%= record.reconciled ? 'match' : 'different' %>">
+                  <div class="row-height">
+                    <%= record.description %>
+                  </div>
+                </td>
+                <td class = "<%= record.reconciled ? 'match' : 'different' %>">
+                  <div class="row-height">
+                    <%= record.amount %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
