@@ -67,6 +67,7 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
   gem 'rails-controller-testing'
+  gem 'pdf-reader'
 end
 
 gem 'bootstrap', '~> 4.3.1'
@@ -80,3 +81,6 @@ gem 'csv'
 
 # These gems will no longer be part of the default gems starting from Ruby 3.5.0.
 gem 'ostruct'
+
+# PDF
+gem 'grover'
