@@ -62,4 +62,21 @@ end
     assert_equal 0, FinanceRecord.count
     assert_equal 0, FinanceRecord2.count
   end
+
+  test "should generate PDF successfully" do
+    get  download_pdf_reconciliations_path
+    assert_response :success
+    assert_equal "application/pdf", @response.content_type
+  end
+
+  test "PDF should contain expected content" do
+    get download_pdf_reconciliations_path
+    assert_response :success
+
+    # check that the response body has expected text
+    pdf_text = PDF::Reader.new(StringIO.new(@response.body)).pages.map(&:text).join(" ")
+    assert_includes pdf_text, "Date"
+    assert_includes pdf_text, "Description"
+    assert_includes pdf_text, "Amount"
+  end
 end

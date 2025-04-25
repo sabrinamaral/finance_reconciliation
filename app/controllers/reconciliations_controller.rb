@@ -15,6 +15,7 @@ class ReconciliationsController < ApplicationController
     @csv_data2 = FinanceRecord2.all
 
     match(@csv_data1, @csv_data2)
+
   end
 
   def create
@@ -39,6 +40,21 @@ class ReconciliationsController < ApplicationController
     FinanceRecord2.delete_all
 
     redirect_to root_path, notice: "All records have been deleted."
+  end
+
+  def download_pdf
+    # Initialize the variables needed for the view
+    @csv_data1 = FinanceRecord.all
+    @csv_data2 = FinanceRecord2.all
+
+    # Render your HTML template
+    html = render_to_string(template: 'reconciliations/pdf', layout: 'pdf')
+    pdf = Grover.new(html).to_pdf
+
+    send_data pdf,
+              filename: "reconciliation.pdf",
+              type: "application/pdf",
+              disposition: "attachment" # "inline" to display in the browser, "attachment" to force download
   end
 
   private

@@ -9,69 +9,11 @@
 </div>
 <% if @csv_data1.present? && @csv_data2.present? %>
   <div class="container">
-    <%= button_to 'Delete All Records', { action: 'delete_all' }, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-outline-secondary mb-2"%>
-    <div class="row justify-content-start">
-      <div class="col">
-        <table class="table table-light table-sm table-striped" data-controller="highlight-rows">
-          <tr class="table-dark">
-            <th>Date</th>
-            <th>Description</th>
-            <th>Amount</th>
-          </tr>
-          <tbody>
-            <% @csv_data1.each do |record| %>
-              <% next if record.date.blank? && record.description.blank? && record.amount.blank?%>
-              <tr data-action="click->highlight-rows#changeColor">
-                <td class = "<%= record.reconciled ? 'match' : 'different'   %>">
-                  <div class="row-height">
-                    <%= record.date %>
-                  </div>
-                </td>
-                <td class = "<%= record.reconciled ? 'match' : 'different'   %>">
-                  <div class="row-height">
-                    <%= record.description %>
-                  </div>
-                </td>
-                <td class = "<%= record.reconciled ? 'match' : 'different'   %>">
-                  <div class="row-height">
-                    <%= record.amount %>
-                  </div>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-      <div class="col">
-        <table class="table table-light table-sm table-striped" data-controller="highlight-rows">
-          <tr class="table-dark">
-            <th>Date</th>
-            <th>Description</th>
-            <th>Amount</th>
-          </tr>
-          <% @csv_data2.each do |record| %>
-            <% next if record.date.blank? && record.description.blank? && record.amount.blank?%>
-            <tr data-action="click->highlight-rows#changeColor">
-              <td class = "<%= record.reconciled ? 'match' : 'different' %>">
-                <div class="row-height">
-                  <%= record.date %>
-                </div>
-              </td>
-              <td class = "<%= record.reconciled ? 'match' : 'different' %>">
-                <div class="row-height">
-                  <%= record.description %>
-                </div>
-              </td>
-              <td class = "<%= record.reconciled ? 'match' : 'different' %>">
-                <div class="row-height">
-                  <%= record.amount %>
-                </div>
-              </td>
-            </tr>
-          <% end %>
-        </table>
-      </div>
+    <div class="d-flex justify-content-between">
+      <%= button_to 'Delete All Records', { action: 'delete_all' }, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-outline-secondary mb-2"%>
+      <%= link_to 'Download PDF', download_pdf_reconciliations_path, class: 'btn btn-outline-primary mb-2', target: '_blank' %>
     </div>
+    <%= render partial: 'tables', locals: { csv_data1: @csv_data1, csv_data2: @csv_data2 } %>
   </div>
 <% else %>
   <p>No data to display.</p>

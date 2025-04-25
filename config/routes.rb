@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   resources :reconciliations, only: [:new, :create, :index] do
     collection do
       delete 'delete_all'
+      get 'download_pdf'
     end
   end
 

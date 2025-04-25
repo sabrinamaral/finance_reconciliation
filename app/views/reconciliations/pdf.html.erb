@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Reconciliation PDF</title>
+    <meta charset="UTF-8">
+    <%= stylesheet_link_tag 'application', media: 'all' %> <!-- CSS -->
+  </head>
+  <body>
+    <% if @csv_data1.present? && @csv_data2.present? %>
+      <%= render partial: 'tables', locals: { csv_data1: @csv_data1, csv_data2: @csv_data2 } %>
+    <% else %>
+      <p>No data available to display.</p>
+    <% end %>
+  </body>
+</html>
