@@ -16,19 +16,24 @@
 @import "bootstrap";
 
 body {
+  font-family: Arial, Helvetica, sans-serif;
   background-color: #f5f5f5;
 }
 
+.table {
+  font-size: 0.8em;
+}
+
 .match {
-  background-color: #2a9d8f;
+  background-color: #d4edda;
 }
 
 .different {
-  background-color: #edede9;
+  background-color: #fff3cd;
 }
 
 .highlight {
-  background-color: #ffe66d;
+  background-color: #a9d7e2;
 }
 
 .row-height {
@@ -57,7 +62,7 @@ body {
 
 /* custom.css */
 .form-control {
-  padding: 0.2rem !important; /* Adjust the padding value as needed */
+  padding: 0.2rem !important;
 }
 
 .no-wrap {
