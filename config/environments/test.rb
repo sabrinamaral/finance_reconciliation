@@ -67,4 +67,8 @@ Rails.application.configure do
 
   # Set the default host for mailer URLs in the test environment
   config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
+
+config.assets.debug = false
+config.assets.compile = true
+
 end

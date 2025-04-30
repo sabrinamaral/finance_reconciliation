@@ -160,6 +160,8 @@ GEM
     matrix (0.4.2)
     mini_mime (1.1.5)
     minitest (5.25.5)
+    mocha (2.7.1)
+      ruby2_keywords (>= 0.0.5)
     msgpack (1.8.0)
     mutex_m (0.3.0)
     net-imap (0.5.7)
@@ -249,6 +251,7 @@ GEM
       railties (>= 5.2)
     rexml (3.4.1)
     ruby-rc4 (0.1.5)
+    ruby2_keywords (0.0.5)
     rubyzip (2.4.1)
     sassc (2.4.0)
       ffi (~> 1.9)
@@ -319,6 +322,7 @@ DEPENDENCIES
   grover
   importmap-rails
   jbuilder
+  mocha
   ostruct
   pdf-reader
   puma (>= 5.0)

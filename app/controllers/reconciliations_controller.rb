@@ -28,8 +28,25 @@ class ReconciliationsController < ApplicationController
       return
     end
 
-    save_data_to_db(@file1, FinanceRecord) if @file1.respond_to?(:path)
-    save_data_to_db(@file2, FinanceRecord2) if @file2.respond_to?(:path)
+    # Process the first file
+    if @file1.respond_to?(:path)
+      result = ReconciliationDataSaver.new(@file1, FinanceRecord).call
+      unless result[:success]
+        flash.now[:alert] = result[:error]
+        render :index, status: :unprocessable_entity
+        return
+      end
+    end
+
+    # Process the second file
+    if @file2.respond_to?(:path)
+      result = ReconciliationDataSaver.new(@file2, FinanceRecord2).call
+      unless result[:success]
+        flash.now[:alert] = result[:error]
+        render :index, status: :unprocessable_entity
+        return
+      end
+    end
 
     redirect_to action: :index
     return
@@ -58,24 +75,6 @@ class ReconciliationsController < ApplicationController
   end
 
   private
-
-  def save_data_to_db(file, model)
-    CSV.foreach(file, headers: true) do |row|
-      amount = row.fields[2]&.tr('R$', '')&.tr('.', '')&.tr(',', '.')&.strip&.to_f || 0.0
-
-      unless amount.zero? || amount.nil?
-        obj_data = {
-          date: row[0],
-          description: row[1],
-          amount: amount
-        }
-      end
-      record = model.new(obj_data)
-      unless record.save
-        puts "Failed to save record: #{record.errors.full_messages.join(", ")}"
-      end
-    end
-  end
 
   def match(csv_data1, csv_data2)
 
