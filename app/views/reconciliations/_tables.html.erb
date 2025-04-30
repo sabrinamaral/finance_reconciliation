@@ -12,7 +12,7 @@
               <tr data-action="click->highlight-rows#changeColor">
                 <td class = "<%= record.reconciled ? 'match' : 'different'   %>">
                   <div class="row-height">
-                    <%= record.date %>
+                    <%= record.date.strftime('%d/%m/%Y') %>
                   </div>
                 </td>
                 <td class = "<%= record.reconciled ? 'match' : 'different'   %>">
@@ -21,8 +21,8 @@
                   </div>
                 </td>
                 <td class = "<%= record.reconciled ? 'match' : 'different'   %>">
-                  <div class="row-height">
-                    <%= record.amount %>
+                  <div class="row-height amount-column">
+                    <%= number_to_currency(record.amount, unit: "R$ ", separator: ",", delimiter:".", precision: 2) %>
                   </div>
                 </td>
               </tr>
@@ -43,7 +43,7 @@
               <tr data-action="click->highlight-rows#changeColor">
                 <td class = "<%= record.reconciled ? 'match' : 'different' %>">
                   <div class="row-height">
-                    <%= record.date %>
+                    <%= record.date.strftime('%d/%m/%Y') %>
                   </div>
                 </td>
                 <td class = "<%= record.reconciled ? 'match' : 'different' %>">
@@ -52,8 +52,8 @@
                   </div>
                 </td>
                 <td class = "<%= record.reconciled ? 'match' : 'different' %>">
-                  <div class="row-height">
-                    <%= record.amount %>
+                  <div class="row-height amount-column">
+                    <%= number_to_currency(record.amount, unit: "R$ ", separator: ",", delimiter:".", precision: 2) %>
                   </div>
                 </td>
               </tr>
