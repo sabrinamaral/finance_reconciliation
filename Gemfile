@@ -64,23 +64,28 @@ end
 
 group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
+  gem "mocha"
   gem "capybara"
   gem "selenium-webdriver"
-  gem 'rails-controller-testing'
-  gem 'pdf-reader'
+  gem "rails-controller-testing"
+  gem "pdf-reader"
+
 end
 
+# CSS / front end framework
 gem 'bootstrap', '~> 4.3.1'
 
+# Authentication
 gem "devise", "~> 4.9"
 
+# Environment variables
 gem 'dotenv-rails', groups: [:development, :test]
 
 # CSV
 gem 'csv'
 
+# Transform HTML into PDF
+gem 'grover'
+
 # These gems will no longer be part of the default gems starting from Ruby 3.5.0.
 gem 'ostruct'
-
-# PDF
-gem 'grover'
