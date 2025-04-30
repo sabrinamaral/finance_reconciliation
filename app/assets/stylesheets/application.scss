@@ -22,6 +22,8 @@ body {
 
 .table {
   font-size: 0.8em;
+  table-layout: auto; /* Allow columns to resize dynamically */
+  width: 100%;
 }
 
 .match {
@@ -37,9 +39,13 @@ body {
 }
 
 .row-height {
-  min-height: 48px;
+  min-height: 36px;
 }
 
+.amount-column {
+  white-space: nowrap;
+  text-align: left;
+}
 .title {
   text-transform: capitalize;
   font-size: 20px;
