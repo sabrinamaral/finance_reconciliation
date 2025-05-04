@@ -1,3 +1,4 @@
 class FinanceRecord < ApplicationRecord
-  validates :date, :amount, presence: true
+  validates :date, presence: true
+  validates :amount, presence: true, numericality: true
 end
