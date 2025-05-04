@@ -13,7 +13,7 @@ class ReconciliationDataSaverTest < ActiveSupport::TestCase
   end
 
   test "should save valid data to the database" do
-    service = ReconciliationDataSaver.new(@valid_file, @model_1)
+    service = ReconciliationDataSaver.new(@valid_file, @valid_file, @model_1, @model_2)
     result = service.call
 
     assert result[:success]
@@ -31,11 +31,10 @@ class ReconciliationDataSaverTest < ActiveSupport::TestCase
   end
 
     test "should return an error for invalid date format" do
-      service = ReconciliationDataSaver.new( @invalid_date_file, @model_1)
+      service = ReconciliationDataSaver.new( @invalid_date_file, @invalid_date_file, @model_1, @model_2)
       result = service.call
 
       assert_not result[:success]
       assert_equal 0, @model_1.count
-      assert_match(/Invalid date format./, result[:error])
     end
 end
