@@ -79,4 +79,32 @@ end
     assert_includes pdf_text, "Description"
     assert_includes pdf_text, "Amount"
   end
+
+  # Testing if the amount value that is coming from csv file has no spaces throughout the numbers
+  test "amount is parsed correctly with no spaces within the value" do
+    # Prepare a CSV string with an amount containing spaces
+    csv_content = <<~CSV
+      Date,Description,Amount
+      2024-05-01,Test Description,"- 25,00"
+    CSV
+
+    # Write the CSV to a Tempfile to simulate file upload
+    file = Tempfile.new(['test', '.csv'])
+    file.write(csv_content)
+    file.rewind
+
+    # Call the service
+    service = ReconciliationDataSaver.new(file.path, file.path, FinanceRecord, FinanceRecord2)
+    result = service.call
+
+    # Assert success
+    assert result[:success], "Service should succeed"
+
+    # Assert the amount is parsed correctly (no spaces)
+    record = FinanceRecord.last
+    assert_equal(-25.0, record.amount)
+  ensure
+    file.close
+    file.unlink
+  end
 end
