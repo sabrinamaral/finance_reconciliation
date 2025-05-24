@@ -38,7 +38,9 @@ class ReconciliationDataSaver
         end
 
         #Parse the amount
-        amount = row.fields[2]&.tr('R$', '')&.tr('.', '')&.tr(',', '.')&.strip&.to_f || 0.0
+        amount_str = row.fields[2]&.delete(' ')&.tr('R$', '')
+        amount_str = amount_str.gsub('.', '')&.gsub(',', '.')
+        amount = amount_str.to_f
 
         obj_data = { date: date, description: row[1], amount: amount }
 
