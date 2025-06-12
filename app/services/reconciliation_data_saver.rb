@@ -38,7 +38,7 @@ class ReconciliationDataSaver
         end
 
         #Parse the amount
-        amount_str = row.fields[2]&.delete(' ')&.tr('R$', '')
+        amount_str = row.fields[2]&.gsub(/[[:space:]]/, '')&.tr('R$', '')
         amount_str = amount_str.gsub('.', '')&.gsub(',', '.')
         amount = amount_str.to_f
 

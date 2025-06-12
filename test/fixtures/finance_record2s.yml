@@ -3,11 +3,11 @@
 one:
   date: "2024-02-17"
   description: "MyText"
-  amount: 10.0
+  amount: 10.00
   reconciled: false
 
 two:
   date: "2024-02-18"
   description: "AnotherText"
-  amount: 20.0
+  amount: 20.00
   reconciled: true
