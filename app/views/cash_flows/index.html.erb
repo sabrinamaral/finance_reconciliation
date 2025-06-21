@@ -1,27 +1,55 @@
 <%# UPLOAD FILES %>
-<div class="py-4">
+<div class="py-2  rounded">
   <%= form_with model: CashFlow.new, local: true, multipart: true, data: { turbo: false } do |form| %>
-    <div class="form-group d-flex">
+    <div class="d-flex">
       <%= form.file_field :file, class: 'form-control mr-2' %>
-      <%= form.submit 'Upload Files', class: 'btn btn-primary' %>
+      <%= form.submit 'upload files', class: 'btn btn-primary' %>
     </div>
   <% end %>
 </div>
-<%# STARTING BALANCE %>
-<table class="table table-light table-sm" data-controller="highlight-rows">
-  <tr class="d-flex justify-content-between">
-    <th><button class="btn btn-sm btn-outline-secondary">new transaction</button></th>
-    <th data-controller='balance-form'>
-      <%= form_with url: set_balance_path, id: 'balance_form', data:  { turbo: false, action: 'submit->balance-form#submit', balance_form_target: 'form'} do |form| %>
-        <div class="form-group d-flex">
-          <%= form.text_field :starting_balance, class: 'form-control mr-2' %>
-          <%= form.submit 'set balance', class: "btn btn-sm btn-outline-secondary" %>
+<%# ADD TRANSACTIONS MANUALLY %>
+<div data-controller="transaction-form" class="mb-3 pt-2  rounded">
+    <%= form_with model: CashFlow.new, url: add_transaction_cash_flows_path, id: "add_transaction", data:{ turbo: false, action: 'submit->transaction-form-form#submit', transaction_form_target: "transactionForm" } do |form| %>
+      <div class="form-row">
+        <div class="col-md">
+          <%= form.date_field :date, class: 'form-control', placeholder: 'Date' %>
         </div>
-      <% end %>
-    </th>
-  </tr>
-</table>
-<%= button_to 'Delete All Records', { action: 'delete_all' }, method: :delete, data: { confirm: 'Are you sure?'}, class: "btn btn-outline-secondary mb-2"%>
+        <div class="col-md">
+          <%= form.text_field :description, class: 'form-control', placeholder: 'Description' %>
+        </div>
+        <div class="col-md">
+          <%= form.number_field :amount, class: 'form-control', placeholder: 'Amount' %>
+        </div>
+        <div class="col-md">
+          <%= form.select :transaction_type, [["Debit", 0], ["Credit", 1]], {}, class: 'form-control' %>
+        </div>
+        <div class="col-md-auto">
+          <%= form.submit "add transaction", class: "btn btn-outline-secondary" %>
+        </div>
+      </div>
+    <% end %>
+</div>
+
+<div class="d-flex justify-content-between mb-2 w-100">
+  <%# DELETE ALL TRANSACTIONS IN ONCE %>
+  <div>
+    <%= button_to 'delete all records', { action: 'delete_all' }, method: :delete, data: { confirm: 'Are you sure?'}, class: "btn btn-outline-primary mb-2"%>
+  </div>
+  <%# ADD STARTING BALANCE %>
+  <div data-controller='balance-form' class="d-flex">
+    <%= form_with url: set_balance_path, id: 'balance_form', data:  { turbo: false, action: 'submit->balance-form#submit', balance_form_target: 'form'} do |form| %>
+      <div class="d-flex">
+        <%= form.text_field :starting_balance, class: 'form-control mr-2', placeholder: '0,00' %>
+        <%= form.submit 'set balance', class: "btn btn-outline-secondary mr-2" %>
+      </div>
+    <% end %>
+    <%# RESET BALANCE %>
+    <div>
+      <%= button_to 'reset balance', "reset_balance", method: :post, class: "btn btn-outline-secondary ", data: { action: 'click->balance-form#reset'} %>
+    </div>
+  </div>
+</div>
+
 <table class="table table-light table-sm" data-controller="highlight-rows">
   <%# HEADERS %>
   <tr class="table-dark">
@@ -33,18 +61,17 @@
   </tr>
   <tbody>
     <%# RESET BALANCE %>
-    <tr>
+    <tr class="border-bottom">
       <td class="border-bottom"></td>
       <td class="border-bottom">Starting balance</td>
       <td class="border-bottom"></td>
       <td class="border-bottom"><%= number_to_currency(session[:starting_balance], unit: "R$ ", separator: ",", delimiter: ".", precision: 2) %></td>
-      <td class="border-bottom d-flex justify-content-center no-wrap"><%= button_to 'reset balance', "reset_balance", method: :post, class: "btn btn-sm btn-outline-secondary", data: { action: 'click->balance-form#reset', balance_form_target: 'resetButton'} %></td>
     </tr>
 
     <%# INITIALIZE RUNNING_BALANCE %>
     <% running_balance = session[:starting_balance].to_f %>
 
-    <%# ADD TRANSACTIONS %>
+    <%# ADD TRANSACTIONS BY UPLOADING A CSV %>
     <% if  !@cash_flow_records.nil? && @cash_flow_records.any? %>
       <% @cash_flow_records.each do | record | %>
         <tr id="record-<%= record.id%>" class="border-bottom">
