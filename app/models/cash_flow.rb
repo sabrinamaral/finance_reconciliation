@@ -18,7 +18,8 @@ class CashFlow < ApplicationRecord
         end
       end
       cash_flow_attributes = row.to_hash.transform_keys(&:underscore)
-      cash_flow_attributes['amount'] = cash_flow_attributes['amount'].gsub('R$', '').gsub(',', '.').to_f
+      cash_flow_attributes['amount'] = cash_flow_attributes['amount']&.gsub(/[[:space:]]/, '')&.tr('R$', '')
+      cash_flow_attributes['amount'] = cash_flow_attributes['amount'].gsub('.', '')&.gsub(',', '.').to_f
       CashFlow.create!(cash_flow_attributes)
     end
     { success: true }
