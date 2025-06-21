@@ -4,6 +4,7 @@ Rails.application.routes.draw do
 
   resources :cash_flows, only: [:create, :index, :update, :destroy] do
     collection do
+      post "add_transaction"
       delete 'delete_all'
     end
   end
