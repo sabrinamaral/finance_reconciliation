@@ -87,10 +87,21 @@ class CashFlowsController < ApplicationController
     redirect_to cash_flows_path, notice: 'Balance was successfully reset.'
   end
 
+  def add_transaction
+    @transaction = CashFlow.new(cash_flow_params)
+
+    if @transaction.save
+      redirect_to cash_flows_path, notice: 'Record was successfully saved.'
+    else
+      @cash_flow_records = CashFlow.all
+      render :index, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def cash_flow_params
-    params.require(:cash_flow).permit(:date, :description, :amount)
+    params.require(:cash_flow).permit(:date, :description, :amount, :transaction_type)
   end
 
   def validate_csv(file)
