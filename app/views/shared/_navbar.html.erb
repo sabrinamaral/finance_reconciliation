@@ -1,20 +1,25 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">💲Flow💲</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-  <% if user_signed_in? %>
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
-        <a class="nav-link" href="/reconciliations">Reconciliation</a>
-        <a class="nav-link" href="/cash_flows">Cash-flow</a>
-      </div>
+<nav class="navbar navbar-expand-lg bg-body-tertiary p-3 bg-white fixed-top custom-shadow">
+  <div class="container-fluid justify-content-between">
+    <div class="d-flex align-items-center">
+      <%= link_to reconciliations_path do %>
+        <%= image_tag "logo.png", alt: "flow logo", width: "60px" %>
+      <% end %>
+      <% if user_signed_in? %>
+        <div id="navbarNavAltMarkup" class="ms-3">
+          <ul class="nav nav-underline">
+            <li class="nav-item">
+              <a class="nav-link <%= "active" if current_page?(reconciliations_path) %>" aria-current="page" href="/reconciliations">Reconciliation</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link <%= "active" if current_page?(cash_flows_path) %>" href="/cash_flows">Cash-flow</a>
+            </li>
+          </ul>
+        </div>
+      <% end %>
     </div>
-  <% end %>
     <div class="navbar-nav ms-auto mb-2 mb-lg-0">
       <% if user_signed_in? %>
-        <div class="mr-3">
+        <div class="me-3">
           <%= link_to current_user.email, edit_user_registration_path, class: "nav-link"%>
         </div>
         <%= button_to "Logout", destroy_user_session_path, class: "btn btn-outline-secondary btn-sm", method: :delete %>
