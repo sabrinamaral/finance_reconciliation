@@ -1,12 +1,12 @@
 <div class="row justify-content-start">
       <div class="col">
-        <table class="table table-light table-sm table-striped" data-controller="highlight-rows">
+        <table class="table table-light table-sm" data-controller="highlight-rows">
           <thead class="table-secondary">
             <th>Date</th>
             <th>Description</th>
             <th>Amount</th>
           </thead>
-          <tbody class="table-group-divider">
+          <tbody>
             <% @csv_data1.each do |record| %>
               <% next if record.date.blank? && record.description.blank? && record.amount.blank?%>
               <tr data-action="click->highlight-rows#changeColor">
@@ -31,13 +31,13 @@
         </table>
       </div>
       <div class="col">
-        <table class="table table-light table-sm table-striped" data-controller="highlight-rows">
+        <table class="table table-light table-sm" data-controller="highlight-rows">
           <thead class="table-secondary">
             <th>Date</th>
             <th>Description</th>
             <th>Amount</th>
           </thead>
-          <tbody class="table-group-divider">
+          <tbody>
             <% @csv_data2.each do |record| %>
               <% next if record.date.blank? && record.description.blank? && record.amount.blank?%>
               <tr data-action="click->highlight-rows#changeColor">

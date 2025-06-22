@@ -73,7 +73,7 @@ group :test do
 end
 
 # CSS / front end framework
-gem 'bootstrap', '~> 4.3.1'
+gem 'bootstrap', '~> 5.2.3'
 
 # Authentication
 gem "devise", "~> 4.9"

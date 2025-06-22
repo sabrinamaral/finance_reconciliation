@@ -2,15 +2,15 @@
 <div class="py-2  rounded">
   <%= form_with model: CashFlow.new, local: true, multipart: true, data: { turbo: false } do |form| %>
     <div class="d-flex">
-      <%= form.file_field :file, class: 'form-control mr-2' %>
+      <%= form.file_field :file, class: 'form-control me-2' %>
       <%= form.submit 'upload files', class: 'btn btn-primary' %>
     </div>
   <% end %>
 </div>
 <%# ADD TRANSACTIONS MANUALLY %>
-<div data-controller="transaction-form" class="mb-3 pt-2  rounded">
+<div data-controller="transaction-form" class="mb-3 pt-2">
     <%= form_with model: CashFlow.new, url: add_transaction_cash_flows_path, id: "add_transaction", data:{ turbo: false, action: 'submit->transaction-form-form#submit', transaction_form_target: "transactionForm" } do |form| %>
-      <div class="form-row">
+      <div class="row">
         <div class="col-md">
           <%= form.date_field :date, class: 'form-control', placeholder: 'Date' %>
         </div>
@@ -21,7 +21,7 @@
           <%= form.number_field :amount, class: 'form-control', placeholder: 'Amount' %>
         </div>
         <div class="col-md">
-          <%= form.select :transaction_type, [["Debit", 0], ["Credit", 1]], {}, class: 'form-control' %>
+          <%= form.select :transaction_type, [["Debit", 0], ["Credit", 1]], {}, class: 'form-select' %>
         </div>
         <div class="col-md-auto">
           <%= form.submit "add transaction", class: "btn btn-outline-secondary" %>
@@ -39,8 +39,8 @@
   <div data-controller='balance-form' class="d-flex">
     <%= form_with url: set_balance_path, id: 'balance_form', data:  { turbo: false, action: 'submit->balance-form#submit', balance_form_target: 'form'} do |form| %>
       <div class="d-flex">
-        <%= form.text_field :starting_balance, class: 'form-control mr-2', placeholder: '0,00' %>
-        <%= form.submit 'set balance', class: "btn btn-outline-secondary mr-2" %>
+        <%= form.text_field :starting_balance, class: 'form-control me-2', placeholder: '0,00' %>
+        <%= form.submit 'set balance', class: "btn btn-outline-secondary me-2" %>
       </div>
     <% end %>
     <%# RESET BALANCE %>
@@ -50,22 +50,25 @@
   </div>
 </div>
 
-<table class="table table-light table-sm" data-controller="highlight-rows">
+<table class="table">
   <%# HEADERS %>
-  <tr class="table-dark">
-    <th>Date</th>
-    <th>Description</th>
-    <th>Amount</th>
-    <th>Balance</th>
-    <th></th>
-  </tr>
+  <thead>
+    <tr class="table-secondary">
+      <th>Date</th>
+      <th>Description</th>
+      <th>Amount</th>
+      <th>Balance</th>
+      <th></th>
+    </tr>
+  </thead>
   <tbody>
-    <%# RESET BALANCE %>
+    <%# STARTING BALANCE ROW %>
     <tr class="border-bottom">
-      <td class="border-bottom"></td>
-      <td class="border-bottom">Starting balance</td>
-      <td class="border-bottom"></td>
-      <td class="border-bottom"><%= number_to_currency(session[:starting_balance], unit: "R$ ", separator: ",", delimiter: ".", precision: 2) %></td>
+      <td></td>
+      <td>Starting balance</td>
+      <td></td>
+      <td><%= number_to_currency(session[:starting_balance], unit: "R$ ", separator: ",", delimiter: ".", precision: 2) %></td>
+      <td></td>
     </tr>
 
     <%# INITIALIZE RUNNING_BALANCE %>
@@ -75,10 +78,10 @@
     <% if  !@cash_flow_records.nil? && @cash_flow_records.any? %>
       <% @cash_flow_records.each do | record | %>
         <tr id="record-<%= record.id%>" class="border-bottom">
-          <td class="border-bottom">
-            <%= record.date.strftime("%d/%m/%y") %>
+          <td>
+            <%= record.date.strftime("%d/%m/%Y") %>
           </td>
-          <td class="border-bottom">
+          <td>
             <%= record.description %>
           </td>
           <%# TRANSACTIONS TYPE EXPENSES / 0 %>
@@ -99,7 +102,7 @@
             <td class="border-bottom no-wrap"><%=number_to_currency(running_balance -= record.amount, unit: "R$ ", separator: ",", delimiter: ".", precision: 2) %></td>
           <% end %>
           <%# EDIT AND DELETE ICONS %>
-          <td class="d-flex justify-content-around align-items-center mx-1" data-controller="icons">
+          <td class="d-flex justify-content-around align-items-center border border-0" role="button" data-controller="icons">
             <i class="fa-solid fa-pencil" data-action="click->icons#edit" data-record-id="<%= record.id %>"></i>
             <i class="fa-solid fa-trash-can" data-action="click->icons#delete" data-record-id="<%= record.id %>"></i>
           </td>
@@ -118,8 +121,8 @@
                 <div>
                   <%= form.number_field :amount %>
                 </div>
-                <div class="d-flex justify-content-around align-items-center mr-3" data-controller="icons">
-                  <div class="mr-2">
+                <div class="d-flex justify-content-around align-items-center me-3" data-controller="icons">
+                  <div>
                     <button type="submit" class="save-edit-icon text-success" data-record-id="<%= record.id%>"><i class="fa-solid fa-circle-check"></i></button>
                   </div>
                   <div>
