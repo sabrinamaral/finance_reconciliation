@@ -27,19 +27,19 @@ body {
 }
 
 .match {
-  background-color: #d4edda;
+  background-color: #d4edda !important;
 }
 
 .different {
-  background-color: #fff3cd;
+  background-color: #fff3cd !important;
 }
 
 .highlight {
-  background-color: #a9d7e2;
+  background-color: #a9d7e2 !important;
 }
 
 .row-height {
-  min-height: 36px;
+  min-height: 3em;
 }
 
 .amount-column {
@@ -66,11 +66,19 @@ body {
   color: #8b0000;
 }
 
-/* custom.css */
-.form-control {
-  padding: 0.2rem !important;
-}
-
 .no-wrap {
   white-space: nowrap; /* Prevent text from wrapping */
+}
+
+.margin-nav {
+  margin-top: 8em;
+}
+.custom-shadow {
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+}
+
+.nav-underline .nav-link.active,
+.nav-underline .show > .nav-link {
+  border-bottom-color: currentcolor;
+  border-bottom: 2px solid;
 }
