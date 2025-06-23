@@ -1,5 +1,5 @@
 <%# UPLOAD FILES %>
-<div class="py-2  rounded">
+<div class="py-2">
   <%= form_with model: CashFlow.new, local: true, multipart: true, data: { turbo: false } do |form| %>
     <div class="d-flex">
       <%= form.file_field :file, class: 'form-control me-2' %>
@@ -8,7 +8,7 @@
   <% end %>
 </div>
 <%# ADD TRANSACTIONS MANUALLY %>
-<div data-controller="transaction-form" class="mb-3 pt-2">
+<div data-controller="transaction-form" class="mb-3 pt-2 custom-form">
     <%= form_with model: CashFlow.new, url: add_transaction_cash_flows_path, id: "add_transaction", data:{ turbo: false, action: 'submit->transaction-form-form#submit', transaction_form_target: "transactionForm" } do |form| %>
       <div class="row">
         <div class="col-md">
@@ -30,10 +30,10 @@
     <% end %>
 </div>
 
-<div class="d-flex justify-content-between mb-2 w-100">
+<div class="d-flex justify-content-between mb-2 w-100 custom-balance">
   <%# DELETE ALL TRANSACTIONS IN ONCE %>
   <div>
-    <%= button_to 'delete all records', { action: 'delete_all' }, method: :delete, data: { confirm: 'Are you sure?'}, class: "btn btn-outline-primary mb-2"%>
+    <%= button_to 'delete all transactions', { action: 'delete_all' }, method: :delete, data: { confirm: 'Are you sure?'}, class: "btn btn-outline-primary mb-2"%>
   </div>
   <%# ADD STARTING BALANCE %>
   <div data-controller='balance-form' class="d-flex">
@@ -45,12 +45,12 @@
     <% end %>
     <%# RESET BALANCE %>
     <div>
-      <%= button_to 'reset balance', "reset_balance", method: :post, class: "btn btn-outline-secondary ", data: { action: 'click->balance-form#reset'} %>
+      <%= button_to 'reset', "reset_balance", method: :post, class: "btn btn-outline-secondary ", data: { action: 'click->balance-form#reset'} %>
     </div>
   </div>
 </div>
 
-<table class="table">
+<table class="table table-sm">
   <%# HEADERS %>
   <thead>
     <tr class="table-secondary">
@@ -79,7 +79,7 @@
       <% @cash_flow_records.each do | record | %>
         <tr id="record-<%= record.id%>" class="border-bottom">
           <td>
-            <%= record.date.strftime("%d/%m/%Y") %>
+            <%= record.date.strftime("%d/%m/%y") %>
           </td>
           <td>
             <%= record.description %>
@@ -103,7 +103,7 @@
           <% end %>
           <%# EDIT AND DELETE ICONS %>
           <td class="d-flex justify-content-around align-items-center border border-0" role="button" data-controller="icons">
-            <i class="fa-solid fa-pencil" data-action="click->icons#edit" data-record-id="<%= record.id %>"></i>
+            <i class="fa-solid fa-pencil me-1" data-action="click->icons#edit" data-record-id="<%= record.id %>"></i>
             <i class="fa-solid fa-trash-can" data-action="click->icons#delete" data-record-id="<%= record.id %>"></i>
           </td>
         </tr>
