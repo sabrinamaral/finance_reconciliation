@@ -77,8 +77,29 @@ body {
   box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
 }
 
-.nav-underline .nav-link.active,
-.nav-underline .show > .nav-link {
-  border-bottom-color: currentcolor;
-  border-bottom: 2px solid;
+@media screen and (min-width: 768px) {
+  .nav-underline .nav-link.active,
+  .nav-underline .show > .nav-link {
+    border-bottom-color: #0d6efd !important;
+    border-bottom: 2px solid;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .custom-form {
+    margin-bottom: 0.5em !important;
+  }
+  .custom-form > form > .row > div {
+    margin-bottom: 0.2em;
+  }
+  .custom-balance {
+    display: block !important;
+  }
+  #navbarNav {
+    margin-top: 0.5em;
+  }
+  #custom-color {
+    color: rgba(0, 0, 0, 0.7) !important;
+    font-weight: normal !important;
+  }
 }
