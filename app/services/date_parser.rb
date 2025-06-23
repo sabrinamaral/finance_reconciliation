@@ -2,7 +2,7 @@ class DateParser
   def self.parse(date_string)
     return { success: false, error: "Date string is nil"} if date_string.nil?
 
-    formats = ['%d/%m/%Y', '%Y-%m-%d', '%d-%m-%Y']
+    formats = ['%d/%m/%Y', '%d-%m-%Y','%d/%m/%y', '%d-%m-%y' ]
     formats.each do |format|
       begin
         date = Date.strptime(date_string, format)
