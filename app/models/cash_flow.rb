@@ -17,9 +17,18 @@ class CashFlow < ApplicationRecord
           return { success: false, error: "CSV headers must be: #{EXPECTED_HEADERS.join(', ')}" }
         end
       end
+      # Parse the amount
       cash_flow_attributes = row.to_hash.transform_keys(&:underscore)
       cash_flow_attributes['amount'] = cash_flow_attributes['amount']&.gsub(/[[:space:]]/, '')&.tr('R$', '')
       cash_flow_attributes['amount'] = cash_flow_attributes['amount'].gsub('.', '')&.gsub(',', '.').to_f
+      # Parse the date
+        parsed_date = DateParser.parse(cash_flow_attributes['date'])
+        if parsed_date[:success]
+          cash_flow_attributes['date'] = parsed_date[:date]
+        else
+          return { success: false, error: parsed_date[:error] }
+        end
+
       CashFlow.create!(cash_flow_attributes)
     end
     { success: true }

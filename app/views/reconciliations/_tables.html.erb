@@ -12,7 +12,7 @@
               <tr data-action="click->highlight-rows#changeColor">
                 <td class = "<%= record.reconciled ? 'match' : 'different'   %>">
                   <div class="row-height">
-                    <%= record.date.strftime('%d/%m/%Y') %>
+                    <%= record.date.strftime('%d/%m/%y') %>
                   </div>
                 </td>
                 <td class = "<%= record.reconciled ? 'match' : 'different'   %>">
@@ -43,7 +43,7 @@
               <tr data-action="click->highlight-rows#changeColor">
                 <td class = "<%= record.reconciled ? 'match' : 'different' %>">
                   <div class="row-height">
-                    <%= record.date.strftime('%d/%m/%Y') %>
+                    <%= record.date.strftime('%d/%m/%y') %>
                   </div>
                 </td>
                 <td class = "<%= record.reconciled ? 'match' : 'different' %>">
