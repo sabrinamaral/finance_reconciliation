@@ -5,9 +5,11 @@ one:
   description: "MyText"
   amount: 10.00
   reconciled: false
+  user: one
 
 two:
   date: "2024-02-18"
   description: "AnotherText"
   amount: 20.00
   reconciled: true
+  user: one
