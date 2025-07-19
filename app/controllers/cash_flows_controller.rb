@@ -1,13 +1,13 @@
 class CashFlowsController < ApplicationController
 
   def new
-    @cash_flow_records = CashFlow.all
+    @cash_flow_records = CashFlow.for_current_user.all
   end
 
   def create
     unless params[:cash_flow].present?
       flash.now[:alert] = 'Please upload a CSV file.'
-      @cash_flow_records = CashFlow.order(date: :asc) # Ensure transactions are loaded
+      @cash_flow_records = CashFlow.for_current_user.order(date: :asc) # Ensure transactions are loaded
       render :index, status: :unprocessable_entity
       return
     end
@@ -17,19 +17,19 @@ class CashFlowsController < ApplicationController
     # Check if the file has a valid content type
     unless validate_csv(@csv_file)
       flash[:alert] = 'Uploaded file must be a valid CSV format'
-      @cash_flow_records = CashFlow.order(date: :asc) # Ensure transactions are loaded
+      @cash_flow_records = CashFlow.for_current_user.order(date: :asc) # Ensure transactions are loaded
       render :index, status: :unprocessable_entity
       return
     end
 
     # Process the CSV file
-    result = CashFlow.import_from_csv(@csv_file)
+    result = CashFlow.import_from_csv(@csv_file, Current.user)
 
     if result[:success]
       flash[:notice] = 'Cash flow records are successfully created.'
     else
       flash[:alert] = result[:error] || 'CSV headers must be: date, description, amount, transaction_type.'
-      @cash_flow_records = CashFlow.order(date: :asc) # Ensure transactions are loaded
+      @cash_flow_records = CashFlow.for_current_user.order(date: :asc) # Ensure transactions are loaded
       render :index, status: :unprocessable_entity
       return
     end
@@ -38,25 +38,25 @@ class CashFlowsController < ApplicationController
   end
 
   def index
-    @cash_flow_records = CashFlow.order(date: :asc)
+    @cash_flow_records = CashFlow.for_current_user.order(date: :asc)
   end
 
   def edit
-    @cash_flow_records = CashFlow.find(params[:id])
+    @cash_flow_records = CashFlow.for_current_user.find(params[:id])
   end
 
   def update
-    @cash_flow_records = CashFlow.find(params[:id])
+    @cash_flow_records = CashFlow.for_current_user.find(params[:id])
     if @cash_flow_records.update(cash_flow_params)
       redirect_to cash_flows_path, notice: 'Record was successfully updated.'
     else
-      @cash_flow_records = CashFlow.all
+      @cash_flow_records = CashFlow.for_current_user.all
       render :index, status: :unprocessable_entity
     end
   end
 
   def destroy
-    @cash_flow_record = CashFlow.find(params[:id])
+    @cash_flow_record = CashFlow.for_current_user.find(params[:id])
     if @cash_flow_record.destroy
       render json: {message: 'Record was successfully deleted.' }, status: :ok
     else
@@ -65,7 +65,7 @@ class CashFlowsController < ApplicationController
   end
 
   def delete_all
-    CashFlow.delete_all
+    CashFlow.for_current_user.delete_all
 
     redirect_to cash_flows_path, notice: 'All records have been deleted.'
   end
@@ -88,12 +88,12 @@ class CashFlowsController < ApplicationController
   end
 
   def add_transaction
-    @transaction = CashFlow.new(cash_flow_params)
+    @transaction = Current.user.cash_flows.new(cash_flow_params)
 
     if @transaction.save
       redirect_to cash_flows_path, notice: 'Record was successfully saved.'
     else
-      @cash_flow_records = CashFlow.all
+      @cash_flow_records = CashFlow.for_current_user.all
       render :index, status: :unprocessable_entity
     end
   end
