@@ -1,9 +1,11 @@
 class ReconciliationDataSaver
+
   def initialize(file1, file2, model1, model2)
     @file1 = file1
     @file2 = file2
     @model1 = model1
     @model2 = model2
+    @user = Current.user
   end
 
   def call
@@ -43,8 +45,9 @@ class ReconciliationDataSaver
         amount = amount_str.to_f
 
         obj_data = { date: date, description: row[1], amount: amount }
-
         record = model.new(obj_data)
+        record.user = @user
+
         unless record.save
           Rails.logger.error "Failed to save record: #{record.errors.full_messages.join(', ')}"
           return { success: false, error: "Failed to save record #{record.errors.full_messages.join(', ')}" }

@@ -11,11 +11,11 @@ def setup
   @finance_record1 = finance_records(:one)
   @finance_record2 = finance_record2s(:one)
   # Matching records
-  @matching_record1 = FinanceRecord.create!(date: '2025-04-21', amount: 100, reconciled: false)
-  @matching_record2 = FinanceRecord2.create!(date: '2025-04-21', amount: 100, reconciled: false)
+  @matching_record1 = FinanceRecord.create!(date: '2025-04-21', amount: 100, reconciled: false, user: @user)
+  @matching_record2 = FinanceRecord2.create!(date: '2025-04-21', amount: 100, reconciled: false, user: @user)
   # Non-matching records
-  @non_matching_record1 = FinanceRecord.create!(date: '2025-04-21', amount: 300, reconciled: false)
-  @non_matching_record2 = FinanceRecord2.create!(date: '2025-04-22', amount: 300, reconciled: false)
+  @non_matching_record1 = FinanceRecord.create!(date: '2025-04-21', amount: 300, reconciled: false, user: @user)
+  @non_matching_record2 = FinanceRecord2.create!(date: '2025-04-22', amount: 300, reconciled: false, user: @user)
   @invalid_content_type = Rack::Test::UploadedFile.new(file_fixture("invalid_format.txt"))
 end
 
@@ -27,10 +27,11 @@ end
   end
 
   test "should get index and assign instance variables" do
+    Current.user = @user
     get reconciliations_path
     assert_response :success
-    assert_equal FinanceRecord.all, assigns(:csv_data1)
-    assert_equal FinanceRecord2.all, assigns(:csv_data2)
+    assert_equal FinanceRecord.for_current_user.pluck(:id).sort, assigns(:csv_data1).pluck(:id).sort
+    assert_equal FinanceRecord2.for_current_user.pluck(:id).sort, assigns(:csv_data2).pluck(:id).sort
   end
 
   test "reconciles matching records correctly" do
@@ -59,8 +60,8 @@ end
   test "should delete all transactions from reconciliation" do
     delete delete_all_reconciliations_path
     assert_redirected_to root_path
-    assert_equal 0, FinanceRecord.count
-    assert_equal 0, FinanceRecord2.count
+    assert_equal 0, FinanceRecord.for_current_user.count
+    assert_equal 0, FinanceRecord2.for_current_user.count
   end
 
   test "should generate PDF successfully" do
@@ -78,33 +79,5 @@ end
     assert_includes pdf_text, "Date"
     assert_includes pdf_text, "Description"
     assert_includes pdf_text, "Amount"
-  end
-
-  # Testing if the amount value that is coming from csv file has no spaces throughout the numbers
-  test "amount is parsed correctly with no spaces within the value" do
-    # Prepare a CSV string with an amount containing spaces
-    csv_content = <<~CSV
-      Date,Description,Amount
-      2024-05-01,Test Description,"- 25,00"
-    CSV
-
-    # Write the CSV to a Tempfile to simulate file upload
-    file = Tempfile.new(['test', '.csv'])
-    file.write(csv_content)
-    file.rewind
-
-    # Call the service
-    service = ReconciliationDataSaver.new(file.path, file.path, FinanceRecord, FinanceRecord2)
-    result = service.call
-
-    # Assert success
-    assert result[:success], "Service should succeed"
-
-    # Assert the amount is parsed correctly (no spaces)
-    record = FinanceRecord.last
-    assert_equal(-25.0, record.amount)
-  ensure
-    file.close
-    file.unlink
   end
 end

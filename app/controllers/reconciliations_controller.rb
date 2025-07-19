@@ -11,8 +11,8 @@ class ReconciliationsController < ApplicationController
   end
 
   def index
-    @csv_data1 = FinanceRecord.all
-    @csv_data2 = FinanceRecord2.all
+    @csv_data1 = FinanceRecord.for_current_user.all
+    @csv_data2 = FinanceRecord2.for_current_user.all
 
     if @csv_data1.present? && @csv_data2.present?
       match(@csv_data1, @csv_data2)
@@ -44,16 +44,16 @@ class ReconciliationsController < ApplicationController
   end
 
   def delete_all
-    FinanceRecord.delete_all
-    FinanceRecord2.delete_all
+    FinanceRecord.for_current_user.delete_all
+    FinanceRecord2.for_current_user.delete_all
 
     redirect_to root_path, notice: "All records have been deleted."
   end
 
   def download_pdf
     # Initialize the variables needed for the view
-    @csv_data1 = FinanceRecord.all
-    @csv_data2 = FinanceRecord2.all
+    @csv_data1 = FinanceRecord.for_current_user.all
+    @csv_data2 = FinanceRecord2.for_current_user.all
 
     # Render your HTML template
     html = render_to_string(template: 'reconciliations/pdf', layout: 'pdf')

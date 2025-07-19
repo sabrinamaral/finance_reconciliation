@@ -1,5 +1,8 @@
 class CashFlow < ApplicationRecord
   require 'csv'
+  belongs_to :user
+  scope :for_current_user, -> { where(user_id: Current.user.id) if Current.user }
+
   EXPECTED_HEADERS = %w[date description amount transaction_type].freeze
 
   validates :date, presence: true
@@ -8,7 +11,7 @@ class CashFlow < ApplicationRecord
   validates :transaction_type, presence: true
 
 
-  def self.import_from_csv(file)
+  def self.import_from_csv(file, user)
     headers = nil
     CSV.foreach(file, headers: true) do |row|
       if headers.nil?
@@ -29,7 +32,7 @@ class CashFlow < ApplicationRecord
           return { success: false, error: parsed_date[:error] }
         end
 
-      CashFlow.create!(cash_flow_attributes)
+      user.cash_flows.create!(cash_flow_attributes)
     end
     { success: true }
   end

@@ -13,6 +13,7 @@ class ReconciliationDataSaverTest < ActiveSupport::TestCase
   end
 
   test "should save valid data to the database" do
+    Current.user = users(:one)
     service = ReconciliationDataSaver.new(@valid_file, @valid_file, @model_1, @model_2)
     result = service.call
 
