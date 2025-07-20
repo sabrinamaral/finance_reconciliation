@@ -1,29 +1,115 @@
-# README
+# 📊 Finance Reconciliation
 
-- Ruby version
-  "3.1.2"
+A Ruby on Rails application to manage and reconcile financial data with ease.
 
-- Rails version
-  "~> 7.1.1"
+## 🛠️ Tech Stack
 
-- System dependencies
-  'bootstrap', '~> 4.3.1'
-  'simple_form'
+- **Ruby version:** `3.3.5`
+- **Rails version:** `~> 7.1.1`
 
-- How to use this project:
-  To use this project in development mode:
-  ⌗ Clone the repository into your machine.
-  https://github.com/sabrinamaral/finance_reconciliation
-  ⌗ Run bundle install (to install the gems)
-  ⌗ Run yarn install (to install the JS packages)
-  ⌗ Go to the next steps bellow to configure the DB
+## 🧩 Key Gems
 
-- Database creation
-  ⌗ Run rails db:create
+The app makes use of several powerful gems to enhance its capabilities:
 
-- Database initialization
-  ⌗ Run rails db:migrate
+| Gem              | Purpose                                                         |
+| ---------------- | --------------------------------------------------------------- |
+| `pg`             | PostgreSQL adapter for ActiveRecord                             |
+| `puma`           | Fast and concurrent web server for Ruby/Rails                   |
+| `turbo-rails`    | Enables fast SPA-like navigation with Hotwire                   |
+| `stimulus-rails` | Adds reactive behavior through lightweight JavaScript framework |
+| `jbuilder`       | Helps build JSON responses for APIs                             |
+| `bootstrap`      | CSS framework for responsive UI design                          |
+| `devise`         | Provides robust user authentication                             |
+| `dotenv-rails`   | Loads environment variables from `.env` files                   |
+| `grover`         | Converts HTML pages into PDF documents                          |
+| `csv`            | Enables reading from and writing to CSV files                   |
 
-- Running the app in the development mode
-  ⌗ Run rails server
-  ⌗ Open localhost:3000 into your browser
+Dev and test gems:
+
+- `web-console`, `debug`, `capybara`, `selenium-webdriver`, `mocha`, `rails-controller-testing`
+
+## 📦 System Dependencies
+
+Make sure to install these before running the app:
+
+- [`bootstrap`](https://github.com/twbs/bootstrap), `~> 5.2.3`
+- [`simple_form`](https://github.com/heartcombo/simple_form)
+
+## 🚀 Getting Started
+
+To set up the project locally in development mode:
+
+```bash
+git clone https://github.com/sabrinamaral/finance_reconciliation
+cd finance_reconciliation
+bundle install       # Install Ruby gems
+yarn install         # Install JavaScript packages
+rails db:create      # Create the database
+rails db:migrate     # Run migrations
+rails server         # Start the server
+```
+
+Access the app at [http://localhost:3000](http://localhost:3000)
+
+### 📋 Features Section
+
+## ✨ Features
+
+- User authentication via Devise
+- Upload financial data in CSV format
+- View and reconcile financial transactions
+- Interative cash flow - add, change or delete transactions
+- Export reports as PDF (powered by Grover)
+- Responsive UI with Bootstrap
+
+### 🧪 Testing Instructions
+
+This app includes a test suite using Minitest + Capybara.
+
+## 🧪 Running Tests
+
+To run all tests:
+
+```bash
+rails test
+```
+
+### 🔧 Configuration
+
+## 🔧 Environment Configuration
+
+Create a `.env` file in the root directory with the following variables:
+
+```
+DEVISE_SECRET_KEY=your_devise_secret_key
+RESET_PASSWORD_EMAIL=email@email.com (add an email to reset the users app passwords)
+
+PG_USER=your_postgres_user
+PG_PASSWORD=your_postgres_password
+PG_HOST=your_host
+```
+
+### 🖼️ Screenshots
+
+![Reconciliation](app/assets/images/flow_reconciliation.png)
+![Cash flow](app/assets/images/flow_cashflow.png)
+
+### 🚀 Deployment Instructions
+
+If you would like to deploy it in Render, just add this command to the project Build Command
+
+```
+./bin/render-build.sh
+```
+
+And this command to the Start Command filed:
+
+```
+./bin/rails server
+```
+
+⚠️ Don't forget to add your environment variables.
+
+### 🪪 License
+
+This project is licensed under the MIT License.
