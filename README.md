@@ -1,4 +1,4 @@
-# 📊 Finance Reconciliation
+# 📊 FLOW Finance Reconciliation
 
 A Ruby on Rails application to manage and reconcile financial data with ease.
 
@@ -51,22 +51,22 @@ rails server         # Start the server
 
 Access the app at [http://localhost:3000](http://localhost:3000)
 
-### 📋 Features Section
+## 📋 Features Section
 
-## ✨ Features
+### ✨ Features
 
 - User authentication via Devise
 - Upload financial data in CSV format
 - View and reconcile financial transactions
-- Interative cash flow - add, change or delete transactions
+- Interactive cash flow - add, change, or delete transactions
 - Export reports as PDF (powered by Grover)
 - Responsive UI with Bootstrap
 
-### 🧪 Testing Instructions
+## 🧪 Testing Instructions
 
-This app includes a test suite using Minitest + Capybara.
+This app includes a test suite using Minitest.
 
-## 🧪 Running Tests
+### 🧪 Running Tests
 
 To run all tests:
 
@@ -74,19 +74,18 @@ To run all tests:
 rails test
 ```
 
-### 🔧 Configuration
+## 🔧 Configuration
 
-## 🔧 Environment Configuration
+### 🔧 Environment Configuration
 
 Create a `.env` file in the root directory with the following variables:
 
 ```
 DEVISE_SECRET_KEY=your_devise_secret_key
-RESET_PASSWORD_EMAIL=email@email.com (add an email to reset the users app passwords)
-
+RESET_PASSWORD_EMAIL=email@email.com (add an email to reset the users' app passwords)
 PG_USER=your_postgres_user
 PG_PASSWORD=your_postgres_password
-PG_HOST=your_host
+PG_HOST=your_postgres_host
 ```
 
 ### 🖼️ Screenshots
@@ -102,7 +101,7 @@ If you would like to deploy it in Render, just add this command to the project B
 ./bin/render-build.sh
 ```
 
-And this command to the Start Command filed:
+And this command to the Start Command field:
 
 ```
 ./bin/rails server
