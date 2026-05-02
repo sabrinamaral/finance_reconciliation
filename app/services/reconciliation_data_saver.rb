@@ -1,4 +1,5 @@
 class ReconciliationDataSaver
+  include FileParser
 
   def initialize(file1, file2, model1, model2)
     @file1 = file1
@@ -28,8 +29,8 @@ class ReconciliationDataSaver
     Rails.logger.info "Processing file: #{file}"
 
     begin
-      CSV.foreach(file, headers: true).with_index(1) do |row, index|
-        Rails.logger.info "Processing row #{index}: #{row.to_h}"
+      parse_file(file).each_with_index do |row, index|
+        Rails.logger.info "Processing row #{index + 1}: #{row.to_h}"
 
         # Parse the date
         parsed_date = DateParser.parse(row.fields[0])
