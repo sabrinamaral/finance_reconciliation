@@ -3,7 +3,7 @@ source "https://rubygems.org"
 ruby "3.3.5"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 7.1.1"
+gem "rails", "~> 8.0"
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem "sprockets-rails"
@@ -81,8 +81,9 @@ gem "devise", "~> 4.9"
 # Environment variables
 gem 'dotenv-rails', groups: [:development, :test]
 
-# CSV
+# CSV & EXCEL
 gem 'csv'
+gem "roo", "~> 3.0.0"
 
 # Transform HTML into PDF
 gem 'grover'
