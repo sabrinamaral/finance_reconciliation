@@ -12,7 +12,7 @@ Rails.application.routes.draw do
   post "set_balance", to: "cash_flows#set_balance"
   post "reset_balance", to: "cash_flows#reset_balance"
 
-  resources :reconciliations, only: [:new, :create, :index] do
+  resources :reconciliations, only: [:create, :index] do
     collection do
       delete 'delete_all'
       get 'download_pdf'
