@@ -90,3 +90,6 @@ gem 'grover'
 
 # These gems will no longer be part of the default gems starting from Ruby 3.5.0.
 gem 'ostruct'
+
+# mailer
+gem 'resend'

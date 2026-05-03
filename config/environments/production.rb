@@ -57,15 +57,11 @@ Rails.application.configure do
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   # config.action_mailer.raise_delivery_errors = false
 
-config.action_mailer.delivery_method = :smtp
-config.action_mailer.smtp_settings = {
-  address: 'smtp.resend.com',
-  port: 587,
-  user_name: 'resend',
-  password: ENV['RESEND_API_KEY'],
-  authentication: :plain,
-  enable_starttls_auto: true
+config.action_mailer.delivery_method = :resend
+config.action_mailer.resend_settings = {
+  api_key: ENV["RESEND_API_KEY"]
 }
+
 config.action_mailer.default_url_options = { host: 'financereconciliation-financeapp.up.railway.app', protocol: 'https' }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
