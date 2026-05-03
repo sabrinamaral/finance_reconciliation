@@ -83,4 +83,7 @@ config.action_mailer.default_url_options = { host: 'financereconciliation-financ
   #
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  #
+  config.active_storage.variant_processor = :disabled
+
 end
