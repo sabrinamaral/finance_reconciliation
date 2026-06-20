@@ -1,59 +1,87 @@
-<div class="row justify-content-start">
-      <div class="col">
+<%# Floating sum panel %>
+<div data-controller="row-selector day-filter" id="reconciliation-tables">
+
+  <div id="sum-panel" data-row-selector-target="panel">
+  <div class="d-flex justify-content-between align-items-center mb-1">
+    <span class="fw-bold" style="font-size:0.7em; color:#adb5bd; text-transform:uppercase; letter-spacing:0.05em;">
+      Selected (<span data-row-selector-target="countDisplay">0</span>)
+    </span>
+    <button class="btn-close ms-3" aria-label="Close" data-action="click->row-selector#close" style="font-size:0.7em; color:#adb5bd;"></button>
+  </div>
+  <div class="fs-4 fw-semibold">R$ <span data-row-selector-target="sumDisplay">0,00</span></div>
+  <button class="btn btn-sm btn-success mt-2 w-100" data-action="click->row-selector#markChecked">
+    Check
+  </button>
+  <button class="btn btn-sm btn-outline-secondary mt-2 w-100" data-action="click->row-selector#reset">
+    Clear
+  </button>
+</div>
+
+<%
+  # Build the list of unique days present in either dataset
+  all_dates = (@csv_data1.map(&:date) + @csv_data2.map(&:date)).compact.uniq.sort
+%>
+
+<div class="mb-3">
+  <div class="day-ruler">
+    <button type="button"
+            class="day-ruler-item active"
+            data-day-filter-target="dayButton"
+            data-day="all"
+            data-action="click->day-filter#filter">
+      All
+    </button>
+    <% all_dates.each do |date| %>
+      <button type="button"
+              class="day-ruler-item"
+              data-day-filter-target="dayButton"
+              data-day="<%= date.strftime('%Y-%m-%d') %>"
+              data-action="click->day-filter#filter">
+        <%= date.strftime('%d') %>
+      </button>
+    <% end %>
+  </div>
+</div>
+
+  <div class="row justify-content-start">
+
+    <%# Table 1 — Bank statement %>
+    <div class="col">
+      <div class="table-scroll-wrapper">
         <table class="table table-light table-sm" data-controller="highlight-rows">
           <thead class="table-secondary">
+            <th class="check-cell">✓</th>
             <th>Date</th>
             <th>Description</th>
             <th>Amount</th>
           </thead>
           <tbody>
             <% @csv_data1.each do |record| %>
-              <% next if record.date.blank? && record.description.blank? && record.amount.blank?%>
-              <tr data-action="click->highlight-rows#changeColor">
-                <td class = "<%= record.reconciled ? 'match' : 'different'   %>">
-                  <div class="row-height">
-                    <%= record.date.strftime('%d/%m/%y') %>
-                  </div>
+              <% next if record.date.blank? && record.description.blank? && record.amount.blank? %>
+              <tr data-action="click->row-selector#toggle"
+                  data-day-filter-target="row"
+                  data-day="<%= record.date.strftime('%Y-%m-%d') %>"
+                  data-record-id="<%= record.id %>"
+                  data-model="FinanceRecord"
+                  data-amount="<%= record.amount %>"
+                  class="<%= 'checked' if record.checked %>">
+                <td class="check-cell">
+                  <input type="checkbox"
+                        <%= 'checked' if record.checked %>
+                        data-highlight-rows-target="checkbox"
+                        data-action="click->highlight-rows#toggleChecked"
+                        data-record-id="<%= record.id %>"
+                        data-model="FinanceRecord">
                 </td>
-                <td class = "<%= record.reconciled ? 'match' : 'different'   %>">
-                  <div class="row-height">
-                    <%= record.description %>
-                  </div>
+              <td>
+                  <div class="row-height"><%= record.date.strftime('%d/%m/%y') %></div>
                 </td>
-                <td class = "<%= record.reconciled ? 'match' : 'different'   %>">
-                  <div class="row-height amount-column">
-                    <%= number_to_currency(record.amount, unit: "R$ ", separator: ",", delimiter:".", precision: 2) %>
-                  </div>
+                <td>
+                  <div class="row-height"><%= record.description %></div>
                 </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-      <div class="col">
-        <table class="table table-light table-sm" data-controller="highlight-rows">
-          <thead class="table-secondary">
-            <th>Date</th>
-            <th>Description</th>
-            <th>Amount</th>
-          </thead>
-          <tbody>
-            <% @csv_data2.each do |record| %>
-              <% next if record.date.blank? && record.description.blank? && record.amount.blank?%>
-              <tr data-action="click->highlight-rows#changeColor">
-                <td class = "<%= record.reconciled ? 'match' : 'different' %>">
-                  <div class="row-height">
-                    <%= record.date.strftime('%d/%m/%y') %>
-                  </div>
-                </td>
-                <td class = "<%= record.reconciled ? 'match' : 'different' %>">
-                  <div class="row-height">
-                    <%= record.description %>
-                  </div>
-                </td>
-                <td class = "<%= record.reconciled ? 'match' : 'different' %>">
-                  <div class="row-height amount-column">
-                    <%= number_to_currency(record.amount, unit: "R$ ", separator: ",", delimiter:".", precision: 2) %>
+                <td>
+                  <div class="row-height amount-column <%= record.amount.negative? ? 'amount-debit' : 'amount-credit' %>">
+                    <%= record.amount.negative? ? '- ' : '+ ' %><%= number_to_currency(record.amount.abs, unit: "R$ ", separator: ",", delimiter: ".", precision: 2) %>
                   </div>
                 </td>
               </tr>
@@ -62,3 +90,52 @@
         </table>
       </div>
     </div>
+
+    <%# Table 2 — System records %>
+    <div class="col">
+      <div class="table-scroll-wrapper">
+        <table class="table table-light table-sm" data-controller="highlight-rows">
+          <thead class="table-secondary">
+            <th class="check-cell">✓</th>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Amount</th>
+          </thead>
+          <tbody>
+            <% @csv_data2.each do |record| %>
+              <% next if record.date.blank? && record.description.blank? && record.amount.blank? %>
+              <tr data-action="click->row-selector#toggle"
+                  data-day-filter-target="row"
+                  data-day="<%= record.date.strftime('%Y-%m-%d') %>"
+                  data-record-id="<%= record.id %>"
+                  data-model="FinanceRecord2"
+                  data-amount="<%= record.amount %>"
+                  class="<%= 'checked' if record.checked %>">
+                <td class="check-cell">
+                  <input type="checkbox"
+                        <%= 'checked' if record.checked %>
+                        data-highlight-rows-target="checkbox"
+                        data-action="click->highlight-rows#toggleChecked"
+                        data-record-id="<%= record.id %>"
+                        data-model="FinanceRecord2">
+                </td>
+                <td>
+                  <div class="row-height"><%= record.date.strftime('%d/%m/%y') %></div>
+                </td>
+                <td>
+                  <div class="row-height"><%= record.description %></div>
+                </td>
+                <td>
+                  <div class="row-height amount-column <%= record.amount.negative? ? 'amount-debit' : 'amount-credit' %>">
+                    <%= record.amount.negative? ? '- ' : '+ ' %><%= number_to_currency(record.amount.abs, unit: "R$ ", separator: ",", delimiter: ".", precision: 2) %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -9,9 +9,10 @@
 </div>
 <% if @csv_data1.present? && @csv_data2.present? %>
   <div>
-    <div class="d-flex justify-content-between mb-2">
+    <div class="d-grid gap-2 d-md-flex justify-content-md-dtart mb-2">
       <%= button_to 'Delete All Records', { action: 'delete_all' }, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-outline-secondary mb-2"%>
       <%= link_to 'Download PDF', download_pdf_reconciliations_path, class: 'btn btn-outline-primary mb-2', target: '_blank' %>
+      <%= link_to "Analisar com IA", audit_reconciliations_path, class: "btn btn-primary mb-2" %>
     </div>
     <%= render partial: 'tables', locals: { csv_data1: @csv_data1, csv_data2: @csv_data2 } %>
   </div>

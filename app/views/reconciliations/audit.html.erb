@@ -1,0 +1,25 @@
+<div class="container mt-4">
+  <h2>Análise de Auditoria — Claude AI</h2>
+
+  <% if flash[:alert] %>
+    <div class="alert alert-danger"><%= flash[:alert] %></div>
+  <% end %>
+
+  <% if @analysis %>
+    <div class="card mt-3">
+      <div class="card-header bg-primary text-white">
+        <strong>Achados da Análise</strong>
+      </div>
+      <div class="card-body">
+        <pre style="white-space: pre-wrap; font-family: inherit;"><%= @analysis %></pre>
+      </div>
+    </div>
+
+    <%= link_to "← Voltar para Conciliação", reconciliations_path, class: "btn btn-secondary mt-3" %>
+  <% else %>
+    <div class="alert alert-warning mt-3">
+      Nenhuma análise disponível. Faça o upload dos arquivos e execute a conciliação primeiro.
+    </div>
+    <%= link_to "← Voltar", reconciliations_path, class: "btn btn-secondary" %>
+  <% end %>
+</div>
