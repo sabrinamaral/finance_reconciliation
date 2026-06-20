@@ -1,14 +1,32 @@
-import { Controller } from "@hotwired/stimulus";
+import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-  static targets = ["row"];
+  static targets = ['checkbox'];
+
   connect() {}
 
-  changeColor(event) {
-    let row = event.currentTarget;
-    let cells = row.getElementsByTagName("td");
-    for (let i = 0; i < cells.length; i++) {
-      cells[i].classList.toggle("highlight");
-    }
+  // Handles checkbox click — toggles checked state and persists to DB
+  toggleChecked(event) {
+    event.stopPropagation();
+
+    const checkbox = event.currentTarget;
+    const row = checkbox.closest('tr');
+    const id = checkbox.dataset.recordId;
+    const model = checkbox.dataset.model;
+
+    row.classList.toggle('checked');
+
+    const csrfToken = document
+      .querySelector('meta[name="csrf-token"]')
+      .getAttribute('content');
+
+    fetch('/reconciliations/toggle_checked', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken,
+      },
+      body: JSON.stringify({ id, model }),
+    });
   }
 }
