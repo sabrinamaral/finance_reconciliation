@@ -30,6 +30,24 @@ class ReconciliationsController < ApplicationController
 
   end
 
+  def toggle_checked
+    model = params[:model] == "FinanceRecord2" ? FinanceRecord2 : FinanceRecord
+    record = model.for_current_user.find(params[:id])
+    record.update(checked: !record.checked)
+    render json: { checked: record.checked }
+  end
+
+  def bulk_check
+    ids_by_model = params[:ids_by_model] || {}
+
+    ids_by_model.each do |model_name, ids|
+      model = model_name == "FinanceRecord2" ? FinanceRecord2 : FinanceRecord
+      model.for_current_user.where(id: ids).update_all(checked: true)
+    end
+
+    render json: { success: true }
+  end
+
   def delete_all
     FinanceRecord.for_current_user.delete_all
     FinanceRecord2.for_current_user.delete_all
@@ -51,11 +69,29 @@ class ReconciliationsController < ApplicationController
               disposition: "attachment" # "inline" to display in the browser, "attachment" to force download
   end
 
+  def audit
+    load_records
+
+    unreconciled1 = @csv_data1.where(reconciled: false)
+    unreconciled2 = @csv_data2.where(reconciled: false)
+
+    service = ClaudeAuditService.new(unreconciled1, unreconciled2)
+    result = service.call
+
+    if result[:success]
+      @analysis = result[:analysis]
+    else
+      flash.now[:alert] = result[:error]
+    end
+
+    render :audit
+  end
+
   private
 
   def load_records
-    @csv_data1 = FinanceRecord.for_current_user.order(date: :asc)
-    @csv_data2 = FinanceRecord2.for_current_user.order(date: :asc)
+    @csv_data1 = FinanceRecord.for_current_user.order(date: :asc, id: :asc)
+    @csv_data2 = FinanceRecord2.for_current_user.order(date: :asc, id: :asc)
   end
 
   def match(csv_data1, csv_data2)
@@ -69,8 +105,8 @@ class ReconciliationsController < ApplicationController
       end
 
       if found
-        record1.update(reconciled: true)
-        found.update(reconciled: true)
+        record1.update(reconciled: true, checked: true)
+        found.update(reconciled: true, checked: true)
       end
     end
   end
