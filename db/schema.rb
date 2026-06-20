@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_02_013703) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_19_212005) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -27,6 +27,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_02_013703) do
 
   create_table "finance_record2s", force: :cascade do |t|
     t.decimal "amount"
+    t.boolean "checked", default: false
     t.datetime "created_at", null: false
     t.date "date"
     t.text "description"
@@ -38,6 +39,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_02_013703) do
 
   create_table "finance_records", force: :cascade do |t|
     t.decimal "amount"
+    t.boolean "checked", default: false
     t.datetime "created_at", null: false
     t.date "date"
     t.text "description"
