@@ -1,6 +1,8 @@
 class ReconciliationDataSaver
   include FileParser
 
+  VALID_TYPES = %w[C D].freeze
+
   def initialize(file1, file2, model1, model2)
     @file1 = file1
     @file2 = file2
@@ -20,7 +22,7 @@ class ReconciliationDataSaver
     { success: true }
   rescue => e
     Rails.logger.error "Transaction failed: #{e.message}"
-    { success: false, error: "Transaction failed: #{e.message}"}
+    { success: false, error: "Transaction failed: #{e.message}" }
   end
 
   private
@@ -40,10 +42,21 @@ class ReconciliationDataSaver
           return { success: false, error: parsed_date[:error] }
         end
 
-        #Parse the amount
+        # Parse the amount (always positive at this point)
         amount_str = row.fields[2]&.gsub(/[[:space:]]/, '')&.tr('R$', '')
         amount_str = amount_str.gsub('.', '')&.gsub(',', '.')
         amount = amount_str.to_f
+
+        # Parse the entry type (C = credit, D = debit) and apply sign
+        entry_type = row.fields[3]&.strip&.upcase
+
+        unless VALID_TYPES.include?(entry_type)
+          error_msg = "Invalid entry type '#{entry_type}' at row #{index + 1}. Expected 'C' or 'D'."
+          Rails.logger.error error_msg
+          return { success: false, error: error_msg }
+        end
+
+        amount = -amount if entry_type == "D"
 
         obj_data = { date: date, description: row[1], amount: amount }
         record = model.new(obj_data)
@@ -60,7 +73,6 @@ class ReconciliationDataSaver
       Rails.logger.error "Malformed CSV error: #{e.message}"
       return { success: false, error: "Malformed CSV file: #{e.message}" }
     end
-    # If no errors occurred, return success
     { success: true }
   end
 end
