@@ -72,8 +72,8 @@ class ReconciliationsController < ApplicationController
   def audit
     load_records
 
-    unreconciled1 = @csv_data1.where(reconciled: false)
-    unreconciled2 = @csv_data2.where(reconciled: false)
+    unreconciled1 = @csv_data1.where(checked: false)
+  unreconciled2 = @csv_data2.where(checked: false)
 
     service = ClaudeAuditService.new(unreconciled1, unreconciled2)
     result = service.call
