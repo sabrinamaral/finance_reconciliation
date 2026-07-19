@@ -102,6 +102,15 @@ tr.checked td {
   background: #fff;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
   padding: 1rem 1.25rem;
+  user-select: none;
+}
+
+.panel-drag-handle {
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
 }
 
 // ─── Typography ──────────────────────────────────────────────────────────────
@@ -170,8 +179,18 @@ tr.checked td {
     background-color: #e9ecef;
   }
 
+  &.day-complete {
+    background-color: #d6eafb;
+    color: #084298;
+  }
+
+  &.day-pending {
+    background-color: #fde2e2;
+    color: #a93226;
+  }
+
   &.active {
-    background-color: #0d6efd;
+    background-color: #0d6efd !important;
     color: #fff;
   }
 }
