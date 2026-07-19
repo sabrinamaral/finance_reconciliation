@@ -2,14 +2,14 @@
 <div data-controller="row-selector day-filter" id="reconciliation-tables">
 
   <div id="sum-panel" data-row-selector-target="panel">
-  <div class="d-flex justify-content-between align-items-center mb-1">
+  <div class="panel-drag-handle d-flex justify-content-between align-items-center mb-1" data-action="mousedown->row-selector#startDrag">
     <span class="fw-bold" style="font-size:0.7em; color:#adb5bd; text-transform:uppercase; letter-spacing:0.05em;">
       Selected (<span data-row-selector-target="countDisplay">0</span>)
     </span>
     <button class="btn-close ms-3" aria-label="Close" data-action="click->row-selector#close" style="font-size:0.7em; color:#adb5bd;"></button>
   </div>
   <div class="fs-4 fw-semibold">R$ <span data-row-selector-target="sumDisplay">0,00</span></div>
-  <button class="btn btn-sm btn-success mt-2 w-100" data-action="click->row-selector#markChecked">
+  <button class="btn btn-sm btn-secondary mt-2 w-100" data-action="click->row-selector#markChecked">
     Check
   </button>
   <button class="btn btn-sm btn-outline-secondary mt-2 w-100" data-action="click->row-selector#reset">
@@ -20,6 +20,12 @@
 <%
   # Build the list of unique days present in either dataset
   all_dates = (@csv_data1.map(&:date) + @csv_data2.map(&:date)).compact.uniq.sort
+
+  # For each day, check if every record (both tables) is checked
+  day_status = all_dates.index_with do |date|
+    records_for_day = @csv_data1.select { |r| r.date == date } + @csv_data2.select { |r| r.date == date }
+    records_for_day.all?(&:checked)
+  end
 %>
 
 <div class="mb-3">
@@ -33,7 +39,7 @@
     </button>
     <% all_dates.each do |date| %>
       <button type="button"
-              class="day-ruler-item"
+              class="day-ruler-item <%= day_status[date] ? 'day-complete' : 'day-pending' %>"
               data-day-filter-target="dayButton"
               data-day="<%= date.strftime('%Y-%m-%d') %>"
               data-action="click->day-filter#filter">
