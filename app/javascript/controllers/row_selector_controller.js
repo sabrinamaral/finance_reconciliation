@@ -95,4 +95,47 @@ export default class extends Controller {
     this.sumDisplayTarget.textContent = '0,00';
     this.countDisplayTarget.textContent = '0';
   }
+
+  // Starts dragging the panel
+  startDrag(event) {
+    event.preventDefault();
+
+    const panel = this.panelTarget;
+    const rect = panel.getBoundingClientRect();
+
+    // Switch from bottom/right positioning to top/left for free dragging
+    panel.style.bottom = 'auto';
+    panel.style.right = 'auto';
+    panel.style.top = `${rect.top}px`;
+    panel.style.left = `${rect.left}px`;
+
+    this.dragOffsetX = event.clientX - rect.left;
+    this.dragOffsetY = event.clientY - rect.top;
+
+    this.boundDrag = this.drag.bind(this);
+    this.boundStopDrag = this.stopDrag.bind(this);
+
+    document.addEventListener('mousemove', this.boundDrag);
+    document.addEventListener('mouseup', this.boundStopDrag);
+  }
+
+  // Moves the panel while dragging
+  drag(event) {
+    const panel = this.panelTarget;
+    const x = event.clientX - this.dragOffsetX;
+    const y = event.clientY - this.dragOffsetY;
+
+    // Keep the panel within the viewport bounds
+    const maxX = window.innerWidth - panel.offsetWidth;
+    const maxY = window.innerHeight - panel.offsetHeight;
+
+    panel.style.left = `${Math.max(0, Math.min(x, maxX))}px`;
+    panel.style.top = `${Math.max(0, Math.min(y, maxY))}px`;
+  }
+
+  // Stops dragging
+  stopDrag() {
+    document.removeEventListener('mousemove', this.boundDrag);
+    document.removeEventListener('mouseup', this.boundStopDrag);
+  }
 }
