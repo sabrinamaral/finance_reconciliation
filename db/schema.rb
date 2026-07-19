@@ -10,9 +10,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_19_212005) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_19_233344) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "audit_periods", force: :cascade do |t|
+    t.bigint "audit_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "month"
+    t.datetime "updated_at", null: false
+    t.integer "year"
+    t.index ["audit_id"], name: "index_audit_periods_on_audit_id"
+  end
+
+  create_table "audits", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_audits_on_user_id"
+  end
 
   create_table "cash_flows", force: :cascade do |t|
     t.decimal "amount"
@@ -27,6 +44,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_19_212005) do
 
   create_table "finance_record2s", force: :cascade do |t|
     t.decimal "amount"
+    t.bigint "audit_period_id"
     t.boolean "checked", default: false
     t.datetime "created_at", null: false
     t.date "date"
@@ -34,11 +52,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_19_212005) do
     t.boolean "reconciled", default: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["audit_period_id"], name: "index_finance_record2s_on_audit_period_id"
     t.index ["user_id"], name: "index_finance_record2s_on_user_id"
   end
 
   create_table "finance_records", force: :cascade do |t|
     t.decimal "amount"
+    t.bigint "audit_period_id"
     t.boolean "checked", default: false
     t.datetime "created_at", null: false
     t.date "date"
@@ -46,6 +66,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_19_212005) do
     t.boolean "reconciled", default: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["audit_period_id"], name: "index_finance_records_on_audit_period_id"
     t.index ["user_id"], name: "index_finance_records_on_user_id"
   end
 
@@ -59,7 +80,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_19_212005) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "audit_periods", "audits"
+  add_foreign_key "audits", "users"
   add_foreign_key "cash_flows", "users"
+  add_foreign_key "finance_record2s", "audit_periods"
   add_foreign_key "finance_record2s", "users"
+  add_foreign_key "finance_records", "audit_periods"
   add_foreign_key "finance_records", "users"
 end
