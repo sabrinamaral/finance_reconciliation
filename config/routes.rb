@@ -12,6 +12,10 @@ Rails.application.routes.draw do
   post "set_balance", to: "cash_flows#set_balance"
   post "reset_balance", to: "cash_flows#reset_balance"
 
+  resources :audits, only: [] do
+    resources :audit_periods, only: [:create], shallow: true
+  end
+
   resources :reconciliations, only: [:create, :index] do
     collection do
       delete :delete_all
@@ -21,5 +25,4 @@ Rails.application.routes.draw do
       patch  :bulk_check
     end
   end
-
 end

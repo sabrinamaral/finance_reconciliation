@@ -1,21 +1,64 @@
 <div class="my-3">
-  <%= form_with url: reconciliations_path, local: true, multipart: true do |form| %>
-    <div class="form-group d-flex">
-      <%= form.file_field :file1, class: 'form-control me-2' %>
-      <%= form.file_field :file2, class: 'form-control me-2' %>
-      <%= form.submit 'Upload Files', class: 'btn btn-primary' %>
+  <% if @periods.any? %>
+    <%# Top bar — period selector on left, action buttons on right %>
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+
+      <%# Period selector + new period form %>
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <label class="fw-semibold text-secondary" style="font-size:0.85em;">Period:</label>
+        <%= select_tag :period_id,
+              options_for_select(
+                @periods.map { |p| [p.label, reconciliations_path(period_id: p.id)] },
+                reconciliations_path(period_id: @period.id)
+              ),
+              class: "form-select form-select-sm",
+              style: "width: auto",
+              onchange: "window.location.href = this.value" %>
+
+        <%= form_with url: audit_audit_periods_path(@audit), method: :post,
+                      class: "d-flex flex-wrap gap-1 align-items-center" do |f| %>
+          <%= f.select "audit_period[month]",
+                      (1..12).map { |m| [Date::MONTHNAMES[m], m] },
+                      { prompt: "Month" },
+                      class: "form-select form-select-sm", style: "width:auto" %>
+          <%= f.number_field "audit_period[year]",
+                            placeholder: "Year",
+                            min: 2020, max: 2099,
+                            class: "form-control form-control-sm", style: "width:90px" %>
+          <%= f.submit "+ Period", class: "btn btn-sm btn-outline-primary" %>
+        <% end %>
+      </div>
+
+      <%# Action buttons %>
+      <div class="d-flex flex-wrap gap-2">
+        <%= button_to 'Delete All Records',
+                      { action: 'delete_all', period_id: @period.id },
+                      method: :delete,
+                      data: { confirm: 'Are you sure?' },
+                      class: "btn btn-outline-secondary" %>
+        <%= link_to 'Download PDF',
+                    download_pdf_reconciliations_path(period_id: @period.id),
+                    class: 'btn btn-outline-primary', target: '_blank' %>
+        <%= link_to "Analisar com IA",
+                    audit_reconciliations_path(period_id: @period.id),
+                    class: "btn btn-primary" %>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Upload form %>
+  <%= form_with url: reconciliations_path(period_id: @period.id),
+                local: true, multipart: true do |form| %>
+    <div class="form-group d-flex gap-2 align-items-center mb-3">
+      <%= form.file_field :file1, class: 'form-control' %>
+      <%= form.file_field :file2, class: 'form-control' %>
+      <%= form.submit 'Upload Files', class: 'btn btn-primary text-nowrap' %>
     </div>
   <% end %>
 </div>
+
 <% if @csv_data1.present? && @csv_data2.present? %>
-  <div>
-    <div class="d-grid gap-2 d-md-flex justify-content-md-dtart mb-2">
-      <%= button_to 'Delete All Records', { action: 'delete_all' }, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-outline-secondary mb-2"%>
-      <%= link_to 'Download PDF', download_pdf_reconciliations_path, class: 'btn btn-outline-primary mb-2', target: '_blank' %>
-      <%= link_to "Analisar com IA", audit_reconciliations_path, class: "btn btn-primary mb-2" %>
-    </div>
-    <%= render partial: 'tables', locals: { csv_data1: @csv_data1, csv_data2: @csv_data2 } %>
-  </div>
+  <%= render partial: 'tables', locals: { csv_data1: @csv_data1, csv_data2: @csv_data2 } %>
 <% else %>
   <p>No data to display.</p>
 <% end %>

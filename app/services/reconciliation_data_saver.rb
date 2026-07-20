@@ -3,12 +3,13 @@ class ReconciliationDataSaver
 
   VALID_TYPES = %w[C D].freeze
 
-  def initialize(file1, file2, model1, model2)
-    @file1 = file1
-    @file2 = file2
-    @model1 = model1
-    @model2 = model2
-    @user = Current.user
+  def initialize(file1, file2, model1, model2, period)
+    @file1   = file1
+    @file2   = file2
+    @model1  = model1
+    @model2  = model2
+    @period  = period
+    @user    = Current.user
   end
 
   def call
@@ -34,7 +35,6 @@ class ReconciliationDataSaver
       parse_file(file).each_with_index do |row, index|
         Rails.logger.info "Processing row #{index + 1}: #{row.to_h}"
 
-        # Parse the date
         parsed_date = DateParser.parse(row.fields[0])
         if parsed_date[:success]
           date = parsed_date[:date]
@@ -42,14 +42,11 @@ class ReconciliationDataSaver
           return { success: false, error: parsed_date[:error] }
         end
 
-        # Parse the amount (always positive at this point)
         amount_str = row.fields[2]&.gsub(/[[:space:]]/, '')&.tr('R$', '')
         amount_str = amount_str.gsub('.', '')&.gsub(',', '.')
-        amount = amount_str.to_f
+        amount     = amount_str.to_f
 
-        # Parse the entry type (C = credit, D = debit) and apply sign
         entry_type = row.fields[3]&.strip&.upcase
-
         unless VALID_TYPES.include?(entry_type)
           error_msg = "Invalid entry type '#{entry_type}' at row #{index + 1}. Expected 'C' or 'D'."
           Rails.logger.error error_msg
@@ -58,13 +55,20 @@ class ReconciliationDataSaver
 
         amount = -amount if entry_type == "D"
 
-        obj_data = { date: date, description: row[1], amount: amount }
+        # Associate record with the current audit period
+        obj_data = {
+          date: date,
+          description: row[1],
+          amount: amount,
+          audit_period: @period
+        }
+
         record = model.new(obj_data)
         record.user = @user
 
         unless record.save
           Rails.logger.error "Failed to save record: #{record.errors.full_messages.join(', ')}"
-          return { success: false, error: "Failed to save record #{record.errors.full_messages.join(', ')}" }
+          return { success: false, error: "Failed to save record: #{record.errors.full_messages.join(', ')}" }
         end
 
         Rails.logger.info "Record saved successfully: #{record.inspect}"
