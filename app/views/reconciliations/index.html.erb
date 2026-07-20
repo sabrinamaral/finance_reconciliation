@@ -29,19 +29,35 @@
         <% end %>
       </div>
 
-      <%# Action buttons %>
-      <div class="d-flex flex-wrap gap-2">
-        <%= button_to 'Delete All Records',
-                      { action: 'delete_all', period_id: @period.id },
-                      method: :delete,
-                      data: { confirm: 'Are you sure?' },
-                      class: "btn btn-outline-secondary" %>
-        <%= link_to 'Download PDF',
-                    download_pdf_reconciliations_path(period_id: @period.id),
-                    class: 'btn btn-outline-primary', target: '_blank' %>
-        <%= link_to "Analisar com IA",
-                    audit_reconciliations_path(period_id: @period.id),
-                    class: "btn btn-primary" %>
+      <%# Action buttons — grouped in a dropdown %>
+      <div class="dropdown">
+        <button class="btn btn-outline-secondary btn-sm dropdown-toggle"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+          Actions
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li>
+            <%= link_to "Download PDF",
+                        download_pdf_reconciliations_path(period_id: @period.id),
+                        class: "dropdown-item",
+                        target: "_blank" %>
+          </li>
+          <li>
+            <%= link_to "Analyse with AI",
+                        audit_reconciliations_path(period_id: @period.id),
+                        class: "dropdown-item" %>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <%= button_to "Delete All Records",
+                          { action: "delete_all", period_id: @period.id },
+                          method: :delete,
+                          form: { data: { turbo_confirm: "This will permanently delete all records for #{@period.label}. This action cannot be undone. Are you sure?" } },
+                          class: "dropdown-item text-danger" %>
+          </li>
+        </ul>
       </div>
     </div>
   <% end %>
@@ -52,7 +68,7 @@
     <div class="form-group d-flex gap-2 align-items-center mb-3">
       <%= form.file_field :file1, class: 'form-control' %>
       <%= form.file_field :file2, class: 'form-control' %>
-      <%= form.submit 'Upload Files', class: 'btn btn-primary text-nowrap' %>
+      <%= form.submit 'Upload Files', class: 'btn btn-primary btn-sm text-nowrap' %>
     </div>
   <% end %>
 </div>
