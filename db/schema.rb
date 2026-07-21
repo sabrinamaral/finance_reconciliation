@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_19_233344) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_21_175946) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -56,6 +56,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_19_233344) do
     t.index ["user_id"], name: "index_finance_record2s_on_user_id"
   end
 
+  create_table "finance_record3s", force: :cascade do |t|
+    t.decimal "amount"
+    t.bigint "audit_period_id", null: false
+    t.boolean "checked", default: false
+    t.datetime "created_at", null: false
+    t.date "date"
+    t.text "description"
+    t.boolean "reconciled", default: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["audit_period_id"], name: "index_finance_record3s_on_audit_period_id"
+    t.index ["user_id"], name: "index_finance_record3s_on_user_id"
+  end
+
   create_table "finance_records", force: :cascade do |t|
     t.decimal "amount"
     t.bigint "audit_period_id"
@@ -85,6 +99,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_19_233344) do
   add_foreign_key "cash_flows", "users"
   add_foreign_key "finance_record2s", "audit_periods"
   add_foreign_key "finance_record2s", "users"
+  add_foreign_key "finance_record3s", "audit_periods"
+  add_foreign_key "finance_record3s", "users"
   add_foreign_key "finance_records", "audit_periods"
   add_foreign_key "finance_records", "users"
 end

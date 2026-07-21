@@ -3,6 +3,7 @@ class AuditPeriod < ApplicationRecord
   belongs_to :audit
   has_many :finance_records, dependent: :destroy
   has_many :finance_record2s, dependent: :destroy
+  has_many :finance_record3s, dependent: :destroy
 
   validates :month, presence: true,
                     numericality: { only_integer: true, in: 1..12 }
