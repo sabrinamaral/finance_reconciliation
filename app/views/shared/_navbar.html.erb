@@ -1,4 +1,3 @@
-
 <nav class="navbar navbar-expand-md bg-white fixed-top custom-shadow">
   <div class="container-fluid">
     <%= link_to reconciliations_path do %>
@@ -7,27 +6,37 @@
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse  justify-content-between" id="navbarNav">
+    <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
       <div class="d-flex align-items-center ms-2">
         <% if user_signed_in? %>
-          <ul class="navbar-nav nav-underline">
+          <ul class="navbar-nav flow-tabs">
             <li class="nav-item">
-              <a class="nav-link <%= "active" if current_page?(reconciliations_path) %>" aria-current="page" href="/reconciliations">Reconciliation</a>
+              <%= link_to "Bank Statement", reconciliations_path,
+                    class: "flow-tab #{'active' if controller_name == 'reconciliations'}" %>
             </li>
             <li class="nav-item">
-              <a class="nav-link <%= "active" if current_page?(cash_flows_path) %>" href="/cash_flows">Cash-flow</a>
+              <%= link_to "Receipts", "#",
+                    class: "flow-tab #{'active' if controller_name == 'receipt_reconciliations'}" %>
+            </li>
+            <li class="nav-item">
+              <%= link_to "Cash Flow", cash_flows_path,
+                    class: "flow-tab #{'active' if controller_name == 'cash_flows'}" %>
             </li>
           </ul>
         <% end %>
       </div>
-        <% if user_signed_in? %>
-          <div class="d-flex align-items-center ms-1">
-            <%= link_to edit_user_registration_path, class: "nav-link me-2" do %>
-              <span class="d-none d-md-inline"> <%= current_user.email %> </span>
-            <% end  %>
-            <%= button_to "Logout", destroy_user_session_path, method: :delete, class: "btn btn-link nav-link text-primary fw-bold", id: "custom-color", form: {class:"d-inline"} %>
-          </div>
-        <% end %>
+      <% if user_signed_in? %>
+        <div class="d-flex align-items-center ms-1">
+          <%= link_to edit_user_registration_path, class: "nav-link me-2" do %>
+            <span class="d-none d-md-inline"><%= current_user.email %></span>
+          <% end %>
+          <%= button_to "Logout", destroy_user_session_path,
+                method: :delete,
+                class: "btn btn-link nav-link text-primary fw-bold",
+                id: "custom-color",
+                form: { class: "d-inline" } %>
+        </div>
+      <% end %>
     </div>
   </div>
 </nav>
