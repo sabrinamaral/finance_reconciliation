@@ -106,9 +106,11 @@ class ReconciliationsController < ApplicationController
   def set_period
     if params[:period_id].present?
       @period = @audit.audit_periods.find(params[:period_id])
+      session[:current_period_id] = @period.id
+    elsif session[:current_period_id].present?
+    @period = @audit.audit_periods.find_by(id: session[:current_period_id])
     else
-      # Default to the most recent period, or create January of current year
-      @period = @audit.audit_periods.order(year: :desc, month: :desc).first
+      @period = @audit.audit_periods.order(year: :asc, month: :asc).first
       unless @period
         @period = @audit.audit_periods.create!(month: Date.today.month,
                                               year: Date.today.year)
