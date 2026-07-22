@@ -1,8 +1,6 @@
 class ReconciliationDataSaver
   include FileParser
 
-  VALID_TYPES = %w[C D].freeze
-
   def initialize(file1, file2, model1, model2, period)
     @file1   = file1
     @file2   = file2
@@ -33,38 +31,15 @@ class ReconciliationDataSaver
 
     begin
       parse_file(file).each_with_index do |row, index|
-        Rails.logger.info "Processing row #{index + 1}: #{row.to_h}"
+        result = CsvImporter.parse_row(row)
 
-        parsed_date = DateParser.parse(row.fields[0])
-        if parsed_date[:success]
-          date = parsed_date[:date]
-        else
-          return { success: false, error: parsed_date[:error] }
-        end
-
-        amount_str = row.fields[2]&.gsub(/[[:space:]]/, '')&.tr('R$', '')
-        amount_str = amount_str.gsub('.', '')&.gsub(',', '.')
-        amount     = amount_str.to_f
-
-        entry_type = row.fields[3]&.strip&.upcase
-        unless VALID_TYPES.include?(entry_type)
-          error_msg = "Invalid entry type '#{entry_type}' at row #{index + 1}. Expected 'C' or 'D'."
+        unless result.success
+          error_msg = "#{result.error} (row #{index + 1})"
           Rails.logger.error error_msg
           return { success: false, error: error_msg }
         end
 
-        amount = -amount if entry_type == "D"
-
-        # Associate record with the current audit period
-        obj_data = {
-          date: date,
-          description: row[1],
-          amount: amount,
-          audit_period: @period
-        }
-
-        record = model.new(obj_data)
-        record.user = @user
+        record = model.new(result.data.merge(audit_period: @period, user: @user))
 
         unless record.save
           Rails.logger.error "Failed to save record: #{record.errors.full_messages.join(', ')}"
