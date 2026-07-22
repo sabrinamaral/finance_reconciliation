@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_21_175946) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_22_011854) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -84,6 +84,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_21_175946) do
     t.index ["user_id"], name: "index_finance_records_on_user_id"
   end
 
+  create_table "receipt_matches", force: :cascade do |t|
+    t.boolean "checked", default: false
+    t.datetime "created_at", null: false
+    t.bigint "finance_record3_id"
+    t.bigint "finance_record_id", null: false
+    t.boolean "reconciled", default: false
+    t.datetime "updated_at", null: false
+    t.index ["finance_record3_id"], name: "index_receipt_matches_on_finance_record3_id"
+    t.index ["finance_record_id"], name: "index_receipt_matches_on_finance_record_id", unique: true
+  end
+
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email", default: "", null: false
@@ -103,4 +114,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_21_175946) do
   add_foreign_key "finance_record3s", "users"
   add_foreign_key "finance_records", "audit_periods"
   add_foreign_key "finance_records", "users"
+  add_foreign_key "receipt_matches", "finance_record3s"
+  add_foreign_key "receipt_matches", "finance_records"
 end
