@@ -25,4 +25,13 @@ Rails.application.routes.draw do
       patch  :bulk_check
     end
   end
+
+  resources :receipt_reconciliations, only: [:index, :create] do
+    collection do
+      delete :delete_all
+      get :download_pdf
+      patch :toggle_checked
+      patch :bulk_check
+    end
+  end
 end
