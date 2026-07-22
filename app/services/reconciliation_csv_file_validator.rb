@@ -43,6 +43,12 @@ class ReconciliationCsvFileValidator
     { success: true }
   end
 
+  def validate_single
+    return { success: false, error: "File is missing." } unless @file1
+    return { success: false, error: "File must be a CSV." } unless csv?(@file1)
+    { success: true }
+  end
+
 
   private
 
