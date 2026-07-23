@@ -20,7 +20,7 @@ export default class extends Controller {
       .querySelector('meta[name="csrf-token"]')
       .getAttribute('content');
 
-    fetch('/reconciliations/toggle_checked', {
+    fetch('this.urlValue', {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

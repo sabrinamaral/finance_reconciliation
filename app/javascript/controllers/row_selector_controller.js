@@ -2,7 +2,7 @@ import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
   static targets = ['sumDisplay', 'countDisplay', 'panel'];
-  static values = { sum: Number };
+static values  = { sum: Number, checkUrl: { type: String, default: "/reconciliations/bulk_check" } };
 
   selectedRows = new Map(); // id => { model, row }
 
@@ -42,7 +42,7 @@ export default class extends Controller {
       .querySelector('meta[name="csrf-token"]')
       .getAttribute('content');
 
-    const response = await fetch('/reconciliations/bulk_check', {
+    const response = await fetch(this.checkUrlValue, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
