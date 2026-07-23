@@ -1,0 +1,135 @@
+<div data-controller="row-selector day-filter"
+    data-row-selector-check-url-value="/receipt_reconciliations/bulk_check"
+    id="receipt-tables">
+
+  <div id="sum-panel" data-row-selector-target="panel">
+    <div class="panel-drag-handle d-flex justify-content-between align-items-center mb-1" data-action="mousedown->row-selector#startDrag">
+      <span class="fw-bold" style="font-size:0.7em; color:#adb5bd; text-transform:uppercase; letter-spacing:0.05em;">
+        Selected (<span data-row-selector-target="countDisplay">0</span>)
+      </span>
+      <button class="btn-close ms-3" aria-label="Close" data-action="click->row-selector#close" style="font-size:0.7em; color:#adb5bd;"></button>
+    </div>
+    <div class="fs-4 fw-semibold">R$ <span data-row-selector-target="sumDisplay">0,00</span></div>
+    <button class="btn btn-sm btn-secondary mt-2 w-100" data-action="click->row-selector#markChecked">
+      Check
+    </button>
+    <button class="btn btn-sm btn-outline-secondary mt-2 w-100" data-action="click->row-selector#reset">
+      Clear
+    </button>
+  </div>
+
+  <%
+    all_dates = (@bank_records.map(&:date) + @receipt_data.map(&:date)).compact.uniq.sort
+
+    day_status = all_dates.index_with do |date|
+      bank_for_day = @bank_records.select { |r| r.date == date }
+      bank_for_day.all? { |r| r.receipt_match&.checked }
+    end
+  %>
+
+  <div class="mb-3">
+    <div class="day-ruler">
+      <button type="button"
+              class="day-ruler-item active"
+              data-day-filter-target="dayButton"
+              data-day="all"
+              data-action="click->day-filter#filter">
+        All
+      </button>
+      <% all_dates.each do |date| %>
+        <button type="button"
+                class="day-ruler-item <%= day_status[date] ? 'day-complete' : 'day-pending' %>"
+                data-day-filter-target="dayButton"
+                data-day="<%= date.strftime('%Y-%m-%d') %>"
+                data-action="click->day-filter#filter">
+          <%= date.strftime('%d') %>
+        </button>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row justify-content-start">
+
+    <%# Table 1 — Bank statement (checked via ReceiptMatch) %>
+    <div class="col">
+      <div class="table-scroll-wrapper">
+        <table class="table table-light table-sm"
+              data-controller="highlight-rows"
+              data-highlight-rows-url-value="/receipt_reconciliations/toggle_checked">
+          <thead class="table-secondary">
+            <th class="check-cell">✓</th>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Amount</th>
+          </thead>
+          <tbody>
+            <% @bank_records.each do |record| %>
+              <% next if record.date.blank? && record.description.blank? && record.amount.blank? %>
+              <% receipt_match = record.receipt_match %>
+              <tr data-action="click->row-selector#toggle"
+                  data-day-filter-target="row"
+                  data-day="<%= record.date.strftime('%Y-%m-%d') %>"
+                  data-record-id="<%= receipt_match&.id %>"
+                  data-model="ReceiptMatch"
+                  data-amount="<%= record.amount %>"
+                  class="<%= 'checked' if receipt_match&.checked %>">
+                <td class="check-cell">
+                  <input type="checkbox"
+                        <%= 'checked' if receipt_match&.checked %>
+                        data-highlight-rows-target="checkbox"
+                        data-action="click->highlight-rows#toggleChecked"
+                        data-record-id="<%= receipt_match&.id %>"
+                        data-model="ReceiptMatch">
+                </td>
+                <td>
+                  <div class="row-height"><%= record.date.strftime('%d/%m/%y') %></div>
+                </td>
+                <td>
+                  <div class="row-height"><%= record.description %></div>
+                </td>
+                <td>
+                  <div class="row-height amount-column <%= record.amount.negative? ? 'amount-debit' : 'amount-credit' %>">
+                    <%= record.amount.negative? ? '- ' : '+ ' %><%= number_to_currency(record.amount.abs, unit: "R$ ", separator: ",", delimiter: ".", precision: 2) %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <%# Table 2 — Receipts (reference only, no individual checked state) %>
+    <div class="col">
+      <div class="table-scroll-wrapper">
+        <table class="table table-light table-sm" data-controller="highlight-rows">
+          <thead class="table-secondary">
+            <th>Date</th>
+            <th>Description</th>
+            <th>Amount</th>
+          </thead>
+          <tbody>
+            <% @receipt_data.each do |record| %>
+              <% next if record.date.blank? && record.description.blank? && record.amount.blank? %>
+              <tr data-day-filter-target="row"
+                  data-day="<%= record.date.strftime('%Y-%m-%d') %>">
+                <td>
+                  <div class="row-height"><%= record.date.strftime('%d/%m/%y') %></div>
+                </td>
+                <td>
+                  <div class="row-height"><%= record.description %></div>
+                </td>
+                <td>
+                  <div class="row-height amount-column <%= record.amount.negative? ? 'amount-debit' : 'amount-credit' %>">
+                    <%= record.amount.negative? ? '- ' : '+ ' %><%= number_to_currency(record.amount.abs, unit: "R$ ", separator: ",", delimiter: ".", precision: 2) %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>

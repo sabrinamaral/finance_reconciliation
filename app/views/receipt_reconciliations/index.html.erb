@@ -1,0 +1,52 @@
+<div class="my-3">
+  <% if @periods.any? %>
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <label class="fw-semibold text-secondary" style="font-size:0.85em;">Period:</label>
+        <%= select_tag :period_id,
+              options_for_select(
+                @periods.map { |p| [p.label, receipt_reconciliations_path(period_id: p.id)] },
+                receipt_reconciliations_path(period_id: @period.id)
+              ),
+              class: "form-select form-select-sm",
+              style: "width: auto",
+              onchange: "window.location.href = this.value" %>
+      </div>
+
+      <div class="dropdown">
+        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          Actions
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li>
+            <%= link_to "Download PDF",
+                        download_pdf_receipt_reconciliations_path(period_id: @period.id),
+                        class: "dropdown-item", target: "_blank" %>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <%= button_to "Delete All Receipts",
+                          { action: "delete_all", period_id: @period.id },
+                          method: :delete,
+                          form: { data: { turbo_confirm: "This will permanently delete all receipts for #{@period.label}. Are you sure?" } },
+                          class: "dropdown-item text-danger" %>
+          </li>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+
+  <%= form_with url: receipt_reconciliations_path(period_id: @period.id),
+                local: true, multipart: true do |form| %>
+    <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+      <%= form.file_field :file, class: 'form-control' %>
+      <%= form.submit 'Upload Receipts', class: 'btn btn-primary text-nowrap' %>
+    </div>
+  <% end %>
+</div>
+
+<% if @bank_records.present? %>
+  <%= render partial: 'tables' %>
+<% else %>
+  <p>No bank records found for this period. Upload the bank statement in Bank Statement first.</p>
+<% end %>
