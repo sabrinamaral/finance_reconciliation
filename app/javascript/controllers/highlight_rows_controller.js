@@ -2,6 +2,7 @@ import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
   static targets = ['checkbox'];
+  static values = { url: { type: String, default: '/reconciliations/toggle_checked' } };
 
   connect() {}
 
@@ -20,7 +21,7 @@ export default class extends Controller {
       .querySelector('meta[name="csrf-token"]')
       .getAttribute('content');
 
-    fetch('this.urlValue', {
+    fetch(this.urlValue, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
