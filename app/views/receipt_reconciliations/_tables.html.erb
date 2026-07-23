@@ -10,12 +10,8 @@
       <button class="btn-close ms-3" aria-label="Close" data-action="click->row-selector#close" style="font-size:0.7em; color:#adb5bd;"></button>
     </div>
     <div class="fs-4 fw-semibold">R$ <span data-row-selector-target="sumDisplay">0,00</span></div>
-    <button class="btn btn-sm btn-secondary mt-2 w-100" data-action="click->row-selector#markChecked">
-      Check
-    </button>
-    <button class="btn btn-sm btn-outline-secondary mt-2 w-100" data-action="click->row-selector#reset">
-      Clear
-    </button>
+    <button class="btn btn-sm btn-secondary mt-2 w-100" data-action="click->row-selector#markChecked">Check</button>
+    <button class="btn btn-sm btn-outline-secondary mt-2 w-100" data-action="click->row-selector#reset">Clear</button>
   </div>
 
   <%
@@ -81,12 +77,8 @@
                         data-record-id="<%= receipt_match&.id %>"
                         data-model="ReceiptMatch">
                 </td>
-                <td>
-                  <div class="row-height"><%= record.date.strftime('%d/%m/%y') %></div>
-                </td>
-                <td>
-                  <div class="row-height"><%= record.description %></div>
-                </td>
+                <td><div class="row-height"><%= record.date.strftime('%d/%m/%y') %></div></td>
+                <td><div class="row-height"><%= record.description %></div></td>
                 <td>
                   <div class="row-height amount-column <%= record.amount.negative? ? 'amount-debit' : 'amount-credit' %>">
                     <%= record.amount.negative? ? '- ' : '+ ' %><%= number_to_currency(record.amount.abs, unit: "R$ ", separator: ",", delimiter: ".", precision: 2) %>
@@ -99,11 +91,14 @@
       </div>
     </div>
 
-    <%# Table 2 — Receipts (reference only, no individual checked state) %>
+    <%# Table 2 — Receipts (own checked state via FinanceRecord3) %>
     <div class="col">
       <div class="table-scroll-wrapper">
-        <table class="table table-light table-sm" data-controller="highlight-rows">
+        <table class="table table-light table-sm"
+              data-controller="highlight-rows"
+              data-highlight-rows-url-value="/receipt_reconciliations/toggle_checked">
           <thead class="table-secondary">
+            <th class="check-cell">✓</th>
             <th>Date</th>
             <th>Description</th>
             <th>Amount</th>
@@ -111,14 +106,23 @@
           <tbody>
             <% @receipt_data.each do |record| %>
               <% next if record.date.blank? && record.description.blank? && record.amount.blank? %>
-              <tr data-day-filter-target="row"
-                  data-day="<%= record.date.strftime('%Y-%m-%d') %>">
-                <td>
-                  <div class="row-height"><%= record.date.strftime('%d/%m/%y') %></div>
+              <tr data-action="click->row-selector#toggle"
+                  data-day-filter-target="row"
+                  data-day="<%= record.date.strftime('%Y-%m-%d') %>"
+                  data-record-id="<%= record.id %>"
+                  data-model="FinanceRecord3"
+                  data-amount="<%= record.amount %>"
+                  class="<%= 'checked' if record.checked %>">
+                <td class="check-cell">
+                  <input type="checkbox"
+                        <%= 'checked' if record.checked %>
+                        data-highlight-rows-target="checkbox"
+                        data-action="click->highlight-rows#toggleChecked"
+                        data-record-id="<%= record.id %>"
+                        data-model="FinanceRecord3">
                 </td>
-                <td>
-                  <div class="row-height"><%= record.description %></div>
-                </td>
+                <td><div class="row-height"><%= record.date.strftime('%d/%m/%y') %></div></td>
+                <td><div class="row-height"><%= record.description %></div></td>
                 <td>
                   <div class="row-height amount-column <%= record.amount.negative? ? 'amount-debit' : 'amount-credit' %>">
                     <%= record.amount.negative? ? '- ' : '+ ' %><%= number_to_currency(record.amount.abs, unit: "R$ ", separator: ",", delimiter: ".", precision: 2) %>
