@@ -11,6 +11,7 @@ class ReceiptReconciliationsController < ApplicationController
     @file = params[:file]
 
     unless @file
+      load_records
       flash.now[:alert] = "Please select a file."
       render :index, status: :unprocessable_entity
       return
@@ -20,6 +21,7 @@ class ReceiptReconciliationsController < ApplicationController
     result_csv_validator = service_validator.validate_single
 
     unless result_csv_validator[:success]
+      load_records
       flash.now[:alert] = result_csv_validator[:error]
       render :index, status: :unprocessable_entity
       return
@@ -34,6 +36,7 @@ class ReceiptReconciliationsController < ApplicationController
       redirect_to receipt_reconciliations_path(period_id: @period.id),
                   notice: "Receipts uploaded and reconciled successfully."
     else
+      load_records
       flash.now[:alert] = result[:error]
       render :index, status: :unprocessable_entity
     end
@@ -67,7 +70,7 @@ class ReceiptReconciliationsController < ApplicationController
   end
 
   def bulk_check
-    ids = params[:ids] || []
+    ids = params.dig(:ids_by_model, "ReceiptMatch") || []
     ReceiptMatch.where(id: ids).update_all(checked: true)
     render json: { success: true }
   end
