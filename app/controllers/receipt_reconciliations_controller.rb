@@ -63,17 +63,26 @@ class ReceiptReconciliationsController < ApplicationController
               disposition: "attachment"
   end
 
-  def toggle_checked
-    receipt_match = ReceiptMatch.find(params[:id])
-    receipt_match.update(checked: !receipt_match.checked)
-    render json: { checked: receipt_match.checked }
+def toggle_checked
+  model = params[:model] == "FinanceRecord3" ? FinanceRecord3 : ReceiptMatch
+  record = model == FinanceRecord3 ? model.for_current_user.find(params[:id]) : model.find(params[:id])
+  record.update(checked: !record.checked)
+  render json: { checked: record.checked }
+end
+
+def bulk_check
+  ids_by_model = params[:ids_by_model] || {}
+
+  if ids_by_model["ReceiptMatch"].present?
+    ReceiptMatch.where(id: ids_by_model["ReceiptMatch"]).update_all(checked: true)
   end
 
-  def bulk_check
-    ids = params.dig(:ids_by_model, "ReceiptMatch") || []
-    ReceiptMatch.where(id: ids).update_all(checked: true)
-    render json: { success: true }
+  if ids_by_model["FinanceRecord3"].present?
+    FinanceRecord3.for_current_user.where(id: ids_by_model["FinanceRecord3"]).update_all(checked: true)
   end
+
+  render json: { success: true }
+end
 
   private
 
@@ -141,6 +150,7 @@ class ReceiptReconciliationsController < ApplicationController
 
       if found
         receipt_match.update(finance_record3: found, reconciled: true, checked: true)
+        found.update(reconciled: true, checked: true)  # ← marca o lado do recibo também
       end
     end
   end
