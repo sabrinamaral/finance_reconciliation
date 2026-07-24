@@ -19,6 +19,10 @@
                     class: "flow-tab #{'active' if controller_name == 'receipt_reconciliations'}" %>
             </li>
             <li class="nav-item">
+              <%= link_to "Invoices", invoice_reconciliations_path,
+                    class: "flow-tab #{'active' if controller_name == 'invoice_reconciliations'}" %>
+            </li>
+            <li class="nav-item">
               <%= link_to "Cash Flow", cash_flows_path,
                     class: "flow-tab #{'active' if controller_name == 'cash_flows'}" %>
             </li>
