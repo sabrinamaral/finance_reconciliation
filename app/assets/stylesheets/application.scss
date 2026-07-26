@@ -65,6 +65,29 @@ body {
   }
 }
 
+// ─── Navigation tabs ─────────────────────────────────────────────────────────
+
+.dropdown-submenu {
+  position: relative;
+
+  > .dropdown-toggle-submenu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.submenu {
+  display: none;
+  position: static; // stays in normal document flow, drops below
+  min-width: 10rem;
+  margin-top: 0.25rem;
+
+  &.show {
+    display: block;
+  }
+}
+
 // ─── Tables ─────────────────────────────────────────────────────────────────
 
 .table {
