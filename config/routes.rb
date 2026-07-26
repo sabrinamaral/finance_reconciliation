@@ -29,9 +29,10 @@ Rails.application.routes.draw do
   resources :receipt_reconciliations, only: [:index, :create] do
     collection do
       delete :delete_all
-      get :download_pdf
-      patch :toggle_checked
-      patch :bulk_check
+      get    :download_pdf
+      get    :download_excel
+      patch  :toggle_checked
+      patch  :bulk_check
     end
   end
 
@@ -48,7 +49,7 @@ Rails.application.routes.draw do
   collection do
     delete :delete_all
     get    :download_pdf
-    get    :download_excel   # ← novo
+    get    :download_excel
     get    :audit
     patch  :toggle_checked
     patch  :bulk_check

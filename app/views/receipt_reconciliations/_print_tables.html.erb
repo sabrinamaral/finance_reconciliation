@@ -1,0 +1,49 @@
+<style>
+  .print-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .print-table th, .print-table td { border: 1px solid #ccc; padding: 4px 8px; text-align: left; }
+  .print-table th { background-color: #e9ecef; }
+  .amount-debit { color: #c0392b; }
+  .amount-credit { color: #2e86c1; }
+  .print-section { margin-bottom: 24px; }
+  h3 { font-size: 14px; margin-bottom: 8px; }
+</style>
+
+<h2>Receipts Reconciliation Report — <%= @period.label %></h2>
+
+<div class="print-section">
+  <h3>Bank Statement</h3>
+  <table class="print-table">
+    <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Checked</th></tr></thead>
+    <tbody>
+      <% @bank_records.each do |record| %>
+        <tr>
+          <td><%= record.date.strftime('%d/%m/%y') %></td>
+          <td><%= record.description %></td>
+          <td class="<%= record.amount.negative? ? 'amount-debit' : 'amount-credit' %>">
+            <%= record.amount.negative? ? '- ' : '+ ' %><%= number_to_currency(record.amount.abs, unit: "R$ ", separator: ",", delimiter: ".", precision: 2) %>
+          </td>
+          <td><%= record.receipt_match&.checked ? 'Yes' : 'No' %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div class="print-section">
+  <h3>Receipts</h3>
+  <table class="print-table">
+    <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Checked</th></tr></thead>
+    <tbody>
+      <% @receipt_data.each do |record| %>
+        <tr>
+          <td><%= record.date.strftime('%d/%m/%y') %></td>
+          <td><%= record.description %></td>
+          <td class="<%= record.amount.negative? ? 'amount-debit' : 'amount-credit' %>">
+            <%= record.amount.negative? ? '- ' : '+ ' %><%= number_to_currency(record.amount.abs, unit: "R$ ", separator: ",", delimiter: ".", precision: 2) %>
+          </td>
+          <td><%= record.checked ? 'Yes' : 'No' %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

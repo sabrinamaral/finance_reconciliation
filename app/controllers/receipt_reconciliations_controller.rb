@@ -1,7 +1,8 @@
 class ReceiptReconciliationsController < ApplicationController
   before_action :set_audit
   before_action :set_period, only: [:index, :create, :download_pdf,
-                                    :toggle_checked, :bulk_check]
+                                    :download_excel, :toggle_checked,
+                                    :bulk_check]
 
   def index
     load_records
@@ -53,15 +54,25 @@ class ReceiptReconciliationsController < ApplicationController
     redirect_to receipt_reconciliations_path, notice: "All receipts for this period have been deleted."
   end
 
-  def download_pdf
-    load_records
-    html = render_to_string(template: 'receipt_reconciliations/pdf', layout: 'pdf')
-    pdf = Grover.new(html).to_pdf
-    send_data pdf,
-              filename: "receipts_#{@period.label}.pdf",
-              type: "application/pdf",
-              disposition: "attachment"
-  end
+def download_pdf
+  load_records
+  @bank_records = apply_bank_scope(@bank_records)
+  @receipt_data = apply_receipt_scope(@receipt_data)
+  html = render_to_string(template: 'receipt_reconciliations/pdf', layout: 'pdf')
+  pdf = Grover.new(html).to_pdf
+  send_data pdf,
+            filename: "receipts_#{@period.label}.pdf",
+            type: "application/pdf",
+            disposition: "inline"
+end
+
+def download_excel
+  load_records
+  @bank_records = apply_bank_scope(@bank_records)
+  @receipt_data = apply_receipt_scope(@receipt_data)
+  response.headers['Content-Disposition'] =
+    "attachment; filename=receipts_#{@period.label}.xlsx"
+end
 
 def toggle_checked
   model = params[:model] == "FinanceRecord3" ? FinanceRecord3 : ReceiptMatch
@@ -153,6 +164,28 @@ end
         receipt_match.update(finance_record3: found, reconciled: true, checked: true)
         found.update(reconciled: true, checked: true)  # ← marca o lado do recibo também
       end
+    end
+  end
+
+  def apply_bank_scope(records)
+    case params[:scope]
+    when "reconciled"
+      records.select { |r| r.receipt_match&.checked }
+    when "unreconciled"
+      records.reject { |r| r.receipt_match&.checked }
+    else
+      records
+    end
+  end
+
+  def apply_receipt_scope(records)
+    case params[:scope]
+    when "reconciled"
+      records.where(checked: true)
+    when "unreconciled"
+      records.where(checked: false)
+    else
+      records
     end
   end
 end

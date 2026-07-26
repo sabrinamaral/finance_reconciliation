@@ -18,11 +18,29 @@
           Actions
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li>
-            <%= link_to "Download PDF",
-                        download_pdf_receipt_reconciliations_path(period_id: @period.id),
-                        class: "dropdown-item", target: "_blank" %>
+
+          <li class="dropdown-submenu" data-controller="dropdown-submenu">
+            <a class="dropdown-item dropdown-toggle-submenu" href="#" data-action="click->dropdown-submenu#toggle">
+              Download PDF
+            </a>
+            <ul class="dropdown-menu submenu" data-dropdown-submenu-target="menu">
+              <li><%= link_to "All", download_pdf_receipt_reconciliations_path(period_id: @period.id, scope: "all"), class: "dropdown-item", target: "_blank", rel: "noopener noreferrer" %></li>
+              <li><%= link_to "Reconciled", download_pdf_receipt_reconciliations_path(period_id: @period.id, scope: "reconciled"), class: "dropdown-item", target: "_blank", rel: "noopener noreferrer" %></li>
+              <li><%= link_to "Unreconciled", download_pdf_receipt_reconciliations_path(period_id: @period.id, scope: "unreconciled"), class: "dropdown-item", target: "_blank", rel: "noopener noreferrer" %></li>
+            </ul>
           </li>
+
+          <li class="dropdown-submenu" data-controller="dropdown-submenu">
+            <a class="dropdown-item dropdown-toggle-submenu" href="#" data-action="click->dropdown-submenu#toggle">
+              Download Excel
+            </a>
+            <ul class="dropdown-menu submenu" data-dropdown-submenu-target="menu">
+              <li><%= link_to "All", download_excel_receipt_reconciliations_path(period_id: @period.id, format: :xlsx, scope: "all"), class: "dropdown-item" %></li>
+              <li><%= link_to "Reconciled", download_excel_receipt_reconciliations_path(period_id: @period.id, format: :xlsx, scope: "reconciled"), class: "dropdown-item" %></li>
+              <li><%= link_to "Unreconciled", download_excel_receipt_reconciliations_path(period_id: @period.id, format: :xlsx, scope: "unreconciled"), class: "dropdown-item" %></li>
+            </ul>
+          </li>
+
           <li><hr class="dropdown-divider"></li>
           <li>
             <%= button_to "Delete All Receipts",
