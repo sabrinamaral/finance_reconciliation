@@ -40,6 +40,7 @@ Rails.application.routes.draw do
     collection do
       delete :delete_all
       get    :download_pdf
+      get    :download_excel
       patch  :toggle_checked
       patch  :bulk_check
     end

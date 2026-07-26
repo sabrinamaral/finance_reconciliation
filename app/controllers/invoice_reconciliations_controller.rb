@@ -1,7 +1,7 @@
 class InvoiceReconciliationsController < ApplicationController
   before_action :set_audit
   before_action :set_period, only: [:index, :create, :download_pdf,
-                                    :toggle_checked, :bulk_check]
+                                    :download_excel, :toggle_checked, :bulk_check]
 
   def index
     load_records
@@ -55,12 +55,22 @@ class InvoiceReconciliationsController < ApplicationController
 
   def download_pdf
     load_records
+    @bank_records = apply_bank_scope(@bank_records)
+    @invoice_data = apply_invoice_scope(@invoice_data)
     html = render_to_string(template: 'invoice_reconciliations/pdf', layout: 'pdf')
     pdf = Grover.new(html).to_pdf
     send_data pdf,
               filename: "invoices_#{@period.label}.pdf",
               type: "application/pdf",
-              disposition: "attachment"
+              disposition: "inline"
+  end
+
+  def download_excel
+    load_records
+    @bank_records = apply_bank_scope(@bank_records)
+    @invoice_data = apply_invoice_scope(@invoice_data)
+    response.headers['Content-Disposition'] =
+      "attachment; filename=invoices_#{@period.label}.xlsx"
   end
 
   def toggle_checked
@@ -152,6 +162,28 @@ class InvoiceReconciliationsController < ApplicationController
         invoice_match.update(finance_record4: found, reconciled: true, checked: true)
         found.update(reconciled: true, checked: true)
       end
+    end
+  end
+
+  def apply_bank_scope(records)
+    case params[:scope]
+    when "reconciled"
+      records.select { |r| r.invoice_match&.checked }
+    when "unreconciled"
+      records.reject { |r| r.invoice_match&.checked }
+    else
+      records
+    end
+  end
+
+  def apply_invoice_scope(records)
+    case params[:scope]
+    when "reconciled"
+      records.where(checked: true)
+    when "unreconciled"
+      records.where(checked: false)
+    else
+      records
     end
   end
 end
