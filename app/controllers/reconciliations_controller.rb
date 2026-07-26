@@ -1,6 +1,6 @@
 class ReconciliationsController < ApplicationController
   before_action :set_audit
-  before_action :set_period, only: [:index, :create, :download_pdf, :audit,
+  before_action :set_period, only: [:index, :create, :download_pdf,:download_excel ,:audit,
                                     :toggle_checked, :bulk_check]
 
   def index
@@ -49,12 +49,22 @@ class ReconciliationsController < ApplicationController
 
   def download_pdf
     load_records
+    @csv_data1 = apply_scope(@csv_data1)
+    @csv_data2 = apply_scope(@csv_data2)
     html = render_to_string(template: 'reconciliations/pdf', layout: 'pdf')
     pdf = Grover.new(html).to_pdf
     send_data pdf,
               filename: "reconciliation_#{@period.label}.pdf",
               type: "application/pdf",
-              disposition: "attachment"
+              disposition: "inline"
+  end
+
+  def download_excel
+    load_records
+    @csv_data1 = apply_scope(@csv_data1)
+    @csv_data2 = apply_scope(@csv_data2)
+    response.headers['Content-Disposition'] =
+      "attachment; filename=reconciliation_#{@period.label}.xlsx"
   end
 
   def audit
@@ -140,6 +150,18 @@ class ReconciliationsController < ApplicationController
         record1.update(reconciled: true, checked: true)
         found.update(reconciled: true, checked: true)
       end
+    end
+  end
+
+    # scope for downloadinf pdf and excel
+  def apply_scope(records)
+    case params[:scope]
+    when "reconciled"
+      records.where(checked: true)
+    when "unreconciled"
+      records.where(checked: false)
+    else
+      records
     end
   end
 end
