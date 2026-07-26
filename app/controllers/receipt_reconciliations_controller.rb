@@ -100,7 +100,7 @@ end
     elsif session[:current_period_id].present?
       @period = @audit.audit_periods.find_by(id: session[:current_period_id])
     else
-      @period = @audit.audit_periods.order(year: :desc, month: :desc).first
+      @period = @audit.audit_periods.order(year: :asc, month: :asc).first
       unless @period
         @period = @audit.audit_periods.create!(month: Date.today.month,
                                               year: Date.today.year)
@@ -115,6 +115,7 @@ end
 
     @bank_records = FinanceRecord.for_current_user
                                 .where(audit_period: @period)
+                                .where("amount < 0")
                                 .includes(:receipt_match)
                                 .order(date: :asc, id: :asc)
 
