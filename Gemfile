@@ -84,6 +84,8 @@ gem 'dotenv-rails', groups: [:development, :test]
 # CSV & EXCEL
 gem 'csv'
 gem "roo", "~> 3.0.0"
+gem 'caxlsx'
+gem 'caxlsx_rails'
 
 # Transform HTML into PDF
 gem 'grover'
