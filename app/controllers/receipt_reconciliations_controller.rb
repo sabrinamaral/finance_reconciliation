@@ -71,12 +71,13 @@ def download_excel
   @bank_records = apply_bank_scope(@bank_records)
   @receipt_data = apply_receipt_scope(@receipt_data)
   response.headers['Content-Disposition'] =
-    "attachment; filename=receipts_#{@period.label}.xlsx"
+  "attachment; filename=receipts_#{@period.label}.xlsx"
 end
 
 def toggle_checked
-  model = params[:model] == "FinanceRecord3" ? FinanceRecord3 : ReceiptMatch
-  record = model == FinanceRecord3 ? model.for_current_user.find(params[:id]) : model.find(params[:id])
+  record = params[:model] == "FinanceRecord3" ?
+  FinanceRecord3.for_current_user.find(params[:id]) :
+  user_receipt_matches.find(params[:id])
   record.update(checked: !record.checked)
   render json: { checked: record.checked }
 end
@@ -85,7 +86,7 @@ def bulk_check
   ids_by_model = params[:ids_by_model] || {}
 
   if ids_by_model["ReceiptMatch"].present?
-    ReceiptMatch.where(id: ids_by_model["ReceiptMatch"]).update_all(checked: true)
+    user_receipt_matches.where(id: ids_by_model["ReceiptMatch"]).update_all(checked: true)
   end
 
   if ids_by_model["FinanceRecord3"].present?
@@ -95,7 +96,12 @@ def bulk_check
   render json: { success: true }
 end
 
-  private
+private
+
+  def user_receipt_matches
+    ReceiptMatch.joins(:finance_record)
+                .where(finance_records: { user_id: Current.user.id })
+  end
 
   def set_audit
     @audit = Audit.find_by(user_id: Current.user.id)
@@ -138,7 +144,7 @@ end
   # Ensures every bank record in this period has a ReceiptMatch row,
   # so we always have a place to store its checked/reconciled state
   def ensure_matches_exist
-    FinanceRecord.for_current_user.where(audit_period: @period).find_each do |record|
+    FinanceRecord.for_current_user.where(audit_period: @period).where("amount < 0").find_each do |record|
       ReceiptMatch.find_or_create_by!(finance_record: record)
     end
   end
@@ -149,15 +155,16 @@ end
                             .where(audit_period: @period)
                             .to_a
 
-    ReceiptMatch.joins(:finance_record)
+    ReceiptMatch.includes(:finance_record).joins(:finance_record)
                 .where(finance_records: { audit_period_id: @period.id }, reconciled: false)
+                .where("finance_records.amount < 0")
                 .each do |receipt_match|
       bank = receipt_match.finance_record
 
       found = receipts.find do |receipt|
         receipt.date == bank.date &&
         receipt.amount == bank.amount &&
-        receipt.receipt_match&.reconciled != true
+        !receipt.reconciled
       end
 
       if found

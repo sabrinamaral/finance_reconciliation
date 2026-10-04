@@ -74,8 +74,7 @@ class InvoiceReconciliationsController < ApplicationController
   end
 
   def toggle_checked
-    model  = params[:model] == "FinanceRecord4" ? FinanceRecord4 : InvoiceMatch
-    record = model == FinanceRecord4 ? model.for_current_user.find(params[:id]) : model.find(params[:id])
+    record = params[:model] == "FinanceRecord4" ? FinanceRecord4.for_current_user.find(params[:id]) : user_invoice_matches.find(params[:id])
     record.update(checked: !record.checked)
     render json: { checked: record.checked }
   end
@@ -84,7 +83,7 @@ class InvoiceReconciliationsController < ApplicationController
     ids_by_model = params[:ids_by_model] || {}
 
     if ids_by_model["InvoiceMatch"].present?
-      InvoiceMatch.where(id: ids_by_model["InvoiceMatch"]).update_all(checked: true)
+      user_invoice_matches.where(id: ids_by_model["InvoiceMatch"]).update_all(checked: true)
     end
 
     if ids_by_model["FinanceRecord4"].present?
@@ -95,6 +94,11 @@ class InvoiceReconciliationsController < ApplicationController
   end
 
   private
+
+  def user_invoice_matches
+    InvoiceMatch.joins(:finance_record)
+                .where(finance_records: { user_id: Current.user.id })
+  end
 
   def set_audit
     @audit = Audit.find_by(user_id: Current.user.id)
@@ -136,7 +140,7 @@ class InvoiceReconciliationsController < ApplicationController
 
   # Ensures every bank record in this period has an InvoiceMatch row
   def ensure_matches_exist
-    FinanceRecord.for_current_user.where(audit_period: @period).find_each do |record|
+    FinanceRecord.for_current_user.where(audit_period: @period).where("amount < 0").find_each do |record|
       InvoiceMatch.find_or_create_by!(finance_record: record)
     end
   end
@@ -147,15 +151,16 @@ class InvoiceReconciliationsController < ApplicationController
                             .where(audit_period: @period)
                             .to_a
 
-    InvoiceMatch.joins(:finance_record)
+    InvoiceMatch.includes(:finance_record).joins(:finance_record)
                 .where(finance_records: { audit_period_id: @period.id }, reconciled: false)
+                .where("finance_records.amount < 0")
                 .each do |invoice_match|
       bank = invoice_match.finance_record
 
       found = invoices.find do |invoice|
         invoice.date == bank.date &&
         invoice.amount == bank.amount &&
-        invoice.invoice_match&.reconciled != true
+        !invoice.reconciled
       end
 
       if found
