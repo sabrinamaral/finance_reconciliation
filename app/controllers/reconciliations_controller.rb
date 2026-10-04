@@ -40,10 +40,26 @@ class ReconciliationsController < ApplicationController
 
   def delete_all
     period = @audit.audit_periods.find_by(id: params[:period_id])
+
     if period
-      FinanceRecord.for_current_user.where(audit_period: period).delete_all
-      FinanceRecord2.for_current_user.where(audit_period: period).delete_all
+      ActiveRecord::Base.transaction do
+        bank_records = FinanceRecord.for_current_user.where(audit_period: period)
+
+        # Remove the matches first (FK to finance_records)
+        InvoiceMatch.where(finance_record_id: bank_records.select(:id)).delete_all
+        ReceiptMatch.where(finance_record_id: bank_records.select(:id)).delete_all
+
+        # Invoices/receipts lost their bank counterpart: allow them to be matched again
+        FinanceRecord3.for_current_user.where(audit_period: period)
+                      .update_all(reconciled: false, checked: false)
+        FinanceRecord4.for_current_user.where(audit_period: period)
+                      .update_all(reconciled: false, checked: false)
+
+        bank_records.delete_all
+        FinanceRecord2.for_current_user.where(audit_period: period).delete_all
+      end
     end
+
     redirect_to root_path, notice: "All records for this period have been deleted."
   end
 
