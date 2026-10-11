@@ -169,7 +169,7 @@ class ReconciliationsController < ApplicationController
     end
   end
 
-    # scope for downloadinf pdf and excel
+  # Filters records by checked state for PDF/Excel downloads
   def apply_scope(records)
     case params[:scope]
     when "reconciled"
