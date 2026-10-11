@@ -3,7 +3,7 @@ class FinanceRecord3 < ApplicationRecord
   belongs_to :user
 
   has_one :receipt_match, dependent: :nullify
-  scope :for_current_user, -> {where(user_id: Current.user.id) if Current.user}
+  scope :for_current_user, -> { Current.user ? where(user_id: Current.user.id) : none}
 
   validates :date, presence: true
   validates :amount, presence: true, numericality:true

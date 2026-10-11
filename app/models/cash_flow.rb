@@ -1,7 +1,7 @@
 class CashFlow < ApplicationRecord
   require 'csv'
   belongs_to :user
-  scope :for_current_user, -> { where(user_id: Current.user.id) if Current.user }
+  scope :for_current_user, -> { Current.user ? where(user_id: Current.user.id) : none}
 
   EXPECTED_HEADERS = %w[date description amount transaction_type].freeze
 
