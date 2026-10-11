@@ -20,6 +20,7 @@ Rails.application.routes.draw do
     collection do
       delete :delete_all
       get    :download_pdf
+      get    :download_excel
       get    :audit
       patch  :toggle_checked
       patch  :bulk_check
@@ -45,15 +46,4 @@ Rails.application.routes.draw do
       patch  :bulk_check
     end
   end
-
-  resources :reconciliations, only: [:create, :index] do
-  collection do
-    delete :delete_all
-    get    :download_pdf
-    get    :download_excel
-    get    :audit
-    patch  :toggle_checked
-    patch  :bulk_check
-  end
-end
 end
