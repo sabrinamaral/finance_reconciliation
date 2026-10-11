@@ -6,6 +6,7 @@ one:
   amount: 10.00
   reconciled: false
   user: one
+  audit_period: one
 
 two:
   date: "2024-02-18"
@@ -13,3 +14,4 @@ two:
   amount: 20.00
   reconciled: true
   user: one
+  audit_period: one

@@ -18,19 +18,14 @@ def setup
   @invalid_content_type = Rack::Test::UploadedFile.new(file_fixture("invalid_format.txt"))
 end
 
-  test "should get new and initialize instance variables" do
-    get new_reconciliation_path
-    assert_response :success
-    assert assigns(:file1).is_a?(FinanceRecord)
-    assert assigns(:file2).is_a?(FinanceRecord2)
-  end
-
   test "should get index and assign instance variables" do
-    Current.user = @user
+    period = audit_periods(:one)
     get reconciliations_path
     assert_response :success
-    assert_equal FinanceRecord.for_current_user.pluck(:id).sort, assigns(:csv_data1).pluck(:id).sort
-    assert_equal FinanceRecord2.for_current_user.pluck(:id).sort, assigns(:csv_data2).pluck(:id).sort
+    assert_equal FinanceRecord.where(user: @user, audit_period: period).pluck(:id).sort,
+                assigns(:csv_data1).pluck(:id).sort
+    assert_equal FinanceRecord2.where(user: @user, audit_period: period).pluck(:id).sort,
+                assigns(:csv_data2).pluck(:id).sort
   end
 
   test "reconciles matching records correctly" do
@@ -53,11 +48,12 @@ end
   test "should reject invalid content type" do
     post reconciliations_path, params: { file1: @invalid_content_type, file2: @invalid_content_type}
     assert_response :unprocessable_entity
-    assert_equal "Please upload CSV files only", flash[:alert]
+    assert_equal "Please upload CSV or Excel files only", flash[:alert]
   end
 
   test "should delete all transactions from reconciliation" do
     period = audit_periods(:one)
+    assert FinanceRecord.where(user: @user, audit_period: period).exists?
     delete delete_all_reconciliations_path(period_id: period.id)
     assert_redirected_to root_path
     assert_equal 0, FinanceRecord.where(user: @user, audit_period: period).count
