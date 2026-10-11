@@ -1,7 +1,0 @@
-<% content_for :title, "Reconciliation PDF" %>
-
-<% if @csv_data1.present? || @csv_data2.present? %>
-  <%= render partial: 'print_tables' %>
-<% else %>
-  <p>No data available to display.</p>
-<% end %>

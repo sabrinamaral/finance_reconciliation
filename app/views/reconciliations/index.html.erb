@@ -63,12 +63,12 @@
             </ul>
           </li>
 
-          <li>
-            <%= link_to "Analyse with AI",
+          <%# <li> %>
+            <%#= link_to "Analyse with AI",
                         audit_reconciliations_path(period_id: @period.id),
                         class: "dropdown-item" %>
-          </li>
-          <li><hr class="dropdown-divider"></li>
+          <%# </li> %>
+          <%# <li><hr class="dropdown-divider"></li> %>
           <li>
             <%= button_to "Delete All Records",
                           { action: "delete_all", period_id: @period.id },

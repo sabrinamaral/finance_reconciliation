@@ -1,7 +1,0 @@
-<% content_for :title, "Receipts PDF" %>
-
-<% if @bank_records.present? || @receipt_data.present? %>
-  <%= render partial: 'print_tables' %>
-<% else %>
-  <p>No data available to display.</p>
-<% end %>

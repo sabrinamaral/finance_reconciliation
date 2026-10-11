@@ -57,8 +57,14 @@ class InvoiceReconciliationsController < ApplicationController
     load_records
     @bank_records = apply_bank_scope(@bank_records)
     @invoice_data = apply_invoice_scope(@invoice_data)
-    html = render_to_string(template: 'invoice_reconciliations/pdf', layout: 'pdf')
-    pdf = Grover.new(html).to_pdf
+    pdf = ReconciliationReportPdf.new(
+      title: "Invoices Reconciliation Report — #{@period.label}",
+      sections: [
+        { title: "Bank Statement", records: @bank_records, checked: ->(r) { r.invoice_match&.checked } },
+        { title: "Invoices",       records: @invoice_data, checked: ->(r) { r.checked } }
+      ]
+    ).render
+
     send_data pdf,
               filename: "invoices_#{@period.label.tr('/', '-')}.pdf",
               type: "application/pdf",

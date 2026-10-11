@@ -15,6 +15,7 @@ class ReconciliationsController < ApplicationController
     result_csv_validator = service_validator.validate
 
     unless result_csv_validator[:success]
+      load_records
       flash.now[:alert] = result_csv_validator[:error]
       render :index, status: :unprocessable_entity
       return
@@ -33,6 +34,7 @@ class ReconciliationsController < ApplicationController
       redirect_to reconciliations_path(period_id: @period.id),
                   notice: "Reconciliation completed successfully."
     else
+      load_records
       flash.now[:alert] = result_data_saver[:error]
       render :index, status: :unprocessable_entity
     end
@@ -70,8 +72,14 @@ class ReconciliationsController < ApplicationController
     load_records
     @csv_data1 = apply_scope(@csv_data1)
     @csv_data2 = apply_scope(@csv_data2)
-    html = render_to_string(template: 'reconciliations/pdf', layout: 'pdf')
-    pdf = Grover.new(html).to_pdf
+    pdf = ReconciliationReportPdf.new(
+      title: "Reconciliation Report — #{@period.label}",
+      sections: [
+        { title: "Bank Statement", records: @csv_data1, checked: ->(r) { r.checked } },
+        { title: "System Records", records: @csv_data2, checked: ->(r) { r.checked } }
+      ]
+    ).render
+
     send_data pdf,
               filename: "reconciliation_#{@period.label.tr('/', '-')}.pdf",
               type: "application/pdf",

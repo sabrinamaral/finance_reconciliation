@@ -58,8 +58,14 @@ def download_pdf
   load_records
   @bank_records = apply_bank_scope(@bank_records)
   @receipt_data = apply_receipt_scope(@receipt_data)
-  html = render_to_string(template: 'receipt_reconciliations/pdf', layout: 'pdf')
-  pdf = Grover.new(html).to_pdf
+  pdf = ReconciliationReportPdf.new(
+    title: "Receipts Reconciliation Report — #{@period.label}",
+    sections: [
+      { title: "Bank Statement", records: @bank_records, checked: ->(r) { r.receipt_match&.checked } },
+      { title: "Receipts",       records: @receipt_data, checked: ->(r) { r.checked } }
+    ]
+  ).render
+
   send_data pdf,
             filename: "receipts_#{@period.label.tr('/', '-')}.pdf",
             type: "application/pdf",
