@@ -135,16 +135,14 @@ class ReconciliationsController < ApplicationController
   def set_period
     if params[:period_id].present?
       @period = @audit.audit_periods.find(params[:period_id])
-      session[:current_period_id] = @period.id
     elsif session[:current_period_id].present?
-    @period = @audit.audit_periods.find_by(id: session[:current_period_id])
-    else
-      @period = @audit.audit_periods.order(year: :asc, month: :asc).first
-      unless @period
-        @period = @audit.audit_periods.create!(month: Date.today.month,
-                                              year: Date.today.year)
-      end
+      @period = @audit.audit_periods.find_by(id: session[:current_period_id])
     end
+
+    @period ||= @audit.audit_periods.order(year: :asc, month: :asc).first || @audit.audit_periods.create!(month: Date.today.month,
+    year: Date.today.year)
+
+    session[:current_period_id] = @period.id
   end
 
   def load_records
