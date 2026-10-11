@@ -60,7 +60,7 @@ class InvoiceReconciliationsController < ApplicationController
     html = render_to_string(template: 'invoice_reconciliations/pdf', layout: 'pdf')
     pdf = Grover.new(html).to_pdf
     send_data pdf,
-              filename: "invoices_#{@period.label}.pdf",
+              filename: "invoices_#{@period.label.tr('/', '-')}.pdf",
               type: "application/pdf",
               disposition: "inline"
   end
@@ -69,8 +69,7 @@ class InvoiceReconciliationsController < ApplicationController
     load_records
     @bank_records = apply_bank_scope(@bank_records)
     @invoice_data = apply_invoice_scope(@invoice_data)
-    response.headers['Content-Disposition'] =
-      "attachment; filename=invoices_#{@period.label}.xlsx"
+    render xlsx: "download_excel", filename: "invoices_#{@period.label.tr('/', '-')}.xlsx"
   end
 
   def toggle_checked

@@ -42,7 +42,7 @@ class ReconciliationsController < ApplicationController
     period = @audit.audit_periods.find_by(id: params[:period_id])
 
     unless period
-      redirect_to rooth_path, alert: "Period not found."
+      redirect_to root_path, alert: "Period not found."
       return
     end
 
@@ -73,7 +73,7 @@ class ReconciliationsController < ApplicationController
     html = render_to_string(template: 'reconciliations/pdf', layout: 'pdf')
     pdf = Grover.new(html).to_pdf
     send_data pdf,
-              filename: "reconciliation_#{@period.label}.pdf",
+              filename: "reconciliation_#{@period.label.tr('/', '-')}.pdf",
               type: "application/pdf",
               disposition: "inline"
   end
@@ -82,8 +82,7 @@ class ReconciliationsController < ApplicationController
     load_records
     @csv_data1 = apply_scope(@csv_data1)
     @csv_data2 = apply_scope(@csv_data2)
-    response.headers['Content-Disposition'] =
-      "attachment; filename=reconciliation_#{@period.label}.xlsx"
+    render xlsx: "download_excel", filename: "reconciliation_#{@period.label.tr('/', '-')}.xlsx"
   end
 
   def audit

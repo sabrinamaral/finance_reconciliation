@@ -61,7 +61,7 @@ def download_pdf
   html = render_to_string(template: 'receipt_reconciliations/pdf', layout: 'pdf')
   pdf = Grover.new(html).to_pdf
   send_data pdf,
-            filename: "receipts_#{@period.label}.pdf",
+            filename: "receipts_#{@period.label.tr('/', '-')}.pdf",
             type: "application/pdf",
             disposition: "inline"
 end
@@ -70,8 +70,7 @@ def download_excel
   load_records
   @bank_records = apply_bank_scope(@bank_records)
   @receipt_data = apply_receipt_scope(@receipt_data)
-  response.headers['Content-Disposition'] =
-  "attachment; filename=receipts_#{@period.label}.xlsx"
+  render xlsx: "download_excel", filename: "receipts_#{@period.label.tr('/', '-')}.xlsx"
 end
 
 def toggle_checked
