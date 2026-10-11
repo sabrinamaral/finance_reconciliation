@@ -1,5 +1,4 @@
 require "test_helper"
-require "minitest/mock"
 
 class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers # Include Devise helpers
@@ -58,10 +57,11 @@ end
   end
 
   test "should delete all transactions from reconciliation" do
-    delete delete_all_reconciliations_path
+    period = audit_periods(:one)
+    delete delete_all_reconciliations_path(period_id: period.id)
     assert_redirected_to root_path
-    assert_equal 0, FinanceRecord.for_current_user.count
-    assert_equal 0, FinanceRecord2.for_current_user.count
+    assert_equal 0, FinanceRecord.where(user: @user, audit_period: period).count
+    assert_equal 0, FinanceRecord2.where(user: @user, audit_period: period).count
   end
 
   test "should generate PDF successfully" do
