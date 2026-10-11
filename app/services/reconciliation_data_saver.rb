@@ -1,6 +1,8 @@
 class ReconciliationDataSaver
   include FileParser
 
+  class ImportError < StandardError; end
+
   def initialize(file1, file2, model1, model2, period)
     @file1   = file1
     @file2   = file2
@@ -12,13 +14,13 @@ class ReconciliationDataSaver
 
   def call
     ActiveRecord::Base.transaction do
-      result1 = process_file(@file1, @model1)
-      return result1 unless result1[:success]
-
-      result2 = process_file(@file2, @model2)
-      return result2 unless result2[:success]
+      process_file(@file1, @model1)
+      process_file(@file2, @model2)
     end
     { success: true }
+  rescue ImportError => e
+    Rails.logger.error "Import failed: #{e.message}"
+    { success: false, error: e.message }
   rescue => e
     Rails.logger.error "Transaction failed: #{e.message}"
     { success: false, error: "Transaction failed: #{e.message}" }
@@ -27,31 +29,14 @@ class ReconciliationDataSaver
   private
 
   def process_file(file, model)
-    Rails.logger.info "Processing file: #{file}"
+    parse_file(file).each_with_index do |row, index|
+      result = CsvImporter.parse_row(row)
+      raise ImportError, "#{result.error} (row #{index + 1})" unless result.success
 
-    begin
-      parse_file(file).each_with_index do |row, index|
-        result = CsvImporter.parse_row(row)
-
-        unless result.success
-          error_msg = "#{result.error} (row #{index + 1})"
-          Rails.logger.error error_msg
-          return { success: false, error: error_msg }
-        end
-
-        record = model.new(result.data.merge(audit_period: @period, user: @user))
-
-        unless record.save
-          Rails.logger.error "Failed to save record: #{record.errors.full_messages.join(', ')}"
-          return { success: false, error: "Failed to save record: #{record.errors.full_messages.join(', ')}" }
-        end
-
-        Rails.logger.info "Record saved successfully: #{record.inspect}"
-      end
-    rescue CSV::MalformedCSVError => e
-      Rails.logger.error "Malformed CSV error: #{e.message}"
-      return { success: false, error: "Malformed CSV file: #{e.message}" }
+      record = model.new(result.data.merge(audit_period: @period, user: @user))
+      raise ImportError, "Failed to save record: #{record.errors.full_messages.join(', ')}" unless record.save
     end
-    { success: true }
+  rescue CSV::MalformedCSVError => e
+    raise ImportError, "Malformed CSV file: #{e.message}"
   end
 end
