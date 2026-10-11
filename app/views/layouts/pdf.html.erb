@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>PDF Export</title>
-    <%= csrf_meta_tags %>
-    <%= csp_meta_tag %>
+    <meta charset="UTF-8">
+    <title><%= content_for?(:title) ? yield(:title) : "PDF Export" %></title>
   </head>
   <body>
-    <%= yield %> <!-- This will render the content of the view -->
+    <%= yield %>
   </body>
 </html>

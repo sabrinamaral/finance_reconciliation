@@ -1,14 +1,7 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Reconciliation PDF</title>
-    <meta charset="UTF-8">
-  </head>
-  <body>
-    <% if @csv_data1.present? || @csv_data2.present? %>
-      <%= render partial: 'print_tables' %>
-    <% else %>
-      <p>No data available to display.</p>
-    <% end %>
-  </body>
-</html>
+<% content_for :title, "Reconciliation PDF" %>
+
+<% if @csv_data1.present? || @csv_data2.present? %>
+  <%= render partial: 'print_tables' %>
+<% else %>
+  <p>No data available to display.</p>
+<% end %>

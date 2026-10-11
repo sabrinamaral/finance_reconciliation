@@ -1,14 +1,7 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Receipts PDF</title>
-    <meta charset="UTF-8">
-  </head>
-  <body>
-    <% if @bank_records.present? || @receipt_data.present? %>
-      <%= render partial: 'print_tables' %>
-    <% else %>
-      <p>No data available to display.</p>
-    <% end %>
-  </body>
-</html>
+<% content_for :title, "Receipts PDF" %>
+
+<% if @bank_records.present? || @receipt_data.present? %>
+  <%= render partial: 'print_tables' %>
+<% else %>
+  <p>No data available to display.</p>
+<% end %>
