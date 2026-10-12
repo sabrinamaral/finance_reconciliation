@@ -13,7 +13,13 @@ Rails.application.routes.draw do
     put   "users/password",      to: "devise/passwords#update"
   end
 
-  root 'reconciliations#index'
+  authenticated :user do
+    root 'reconciliations#index', as: :authenticated_root
+  end
+
+  devise_scope :user do
+    root 'users/sessions#new'
+  end
 
   resources :cash_flows, only: [:create, :index, :update, :destroy] do
     collection do
