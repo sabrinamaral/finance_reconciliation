@@ -17,6 +17,10 @@ class ReconciliationCsvFileValidator
       return { success: false, error: 'Please upload CSV or Excel files only' }
     end
 
+    unless valid_size?(@file1) && valid_size?(@file2)
+      return { success: false, error: "Files must be at most #{MAX_FILE_SIZE / 1.megabyte} MB" }
+    end
+
     file1_data = parse_file(@file1)
     file2_data = parse_file(@file2)
 
@@ -46,6 +50,7 @@ class ReconciliationCsvFileValidator
   def validate_single
     return { success: false, error: "File is missing." } unless @file1
     return { success: false, error: "File must be a CSV." } unless valid_content_type?(@file1)
+    return { success: false, error: "File must be at most #{MAX_FILE_SIZE / 1.megabyte} MB." } unless valid_size?(@file1)
     { success: true }
   end
 
@@ -54,6 +59,10 @@ class ReconciliationCsvFileValidator
 
   def valid_content_type?(file)
     ALLOWED_CONTENT_TYPES.include?(file.content_type)
+  end
+
+  def valid_size?(file)
+    file.size <= MAX_FILE_SIZE
   end
 
 end

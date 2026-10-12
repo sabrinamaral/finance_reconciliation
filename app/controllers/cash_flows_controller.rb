@@ -16,7 +16,7 @@ class CashFlowsController < ApplicationController
 
     # Check if the file has a valid content type
     unless validate_csv(@csv_file)
-      flash.now[:alert] = 'Uploaded file must be a valid CSV format'
+      flash.now[:alert] = "Uploaded file must be a CSV of at most #{FileParser::MAX_FILE_SIZE / 1.megabyte} MB"
       @cash_flow_records = CashFlow.for_current_user.order(date: :asc) # Ensure transactions are loaded
       render :index, status: :unprocessable_entity
       return
@@ -105,9 +105,9 @@ class CashFlowsController < ApplicationController
   end
 
   def validate_csv(file)
-    return false  unless file.respond_to?(:content_type)
-      content_type = file.content_type
-      content_type == "text/csv"
+    return false unless file.respond_to?(:content_type)
+
+    file.content_type == "text/csv" && file.size <= FileParser::MAX_FILE_SIZE
   end
 
   def headers_match?(headers)

@@ -33,7 +33,7 @@ class CashFlowsControllerTest < ActionDispatch::IntegrationTest
   test "should reject invalid content type" do
     post cash_flows_path params: { cash_flow: { file: @invalid_content_type } }
     assert_response :unprocessable_entity
-    assert_equal "Uploaded file must be a valid CSV format", flash[:alert]
+    assert_equal "Uploaded file must be a CSV of at most #{FileParser::MAX_FILE_SIZE / 1.megabyte} MB", flash[:alert]
   end
 
   test "should not create cash flows without file" do

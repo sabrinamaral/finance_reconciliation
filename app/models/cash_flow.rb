@@ -11,7 +11,7 @@ class CashFlow < ApplicationRecord
   validates :transaction_type, presence: true
 
 
-    class ImportError < StandardError; end
+  class ImportError < StandardError; end
 
   def self.import_from_csv(file, user)
     rows = CSV.read(file, headers: true)
@@ -24,7 +24,7 @@ class CashFlow < ApplicationRecord
 
     transaction do
       rows.each.with_index(2) do |row, line| # line 1 is the header
-        attributes = row.to_h.transform_keys { |key| key.to_s.strip.underscore }
+        attributes = row.to_h.transform_keys { |key| key.to_s.strip.underscore }.slice(*EXPECTED_HEADERS)
 
         parsed_date = DateParser.parse(attributes['date'])
         raise ImportError, "#{parsed_date[:error]} (row #{line})" unless parsed_date[:success]

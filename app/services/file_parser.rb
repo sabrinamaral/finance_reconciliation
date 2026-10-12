@@ -7,6 +7,8 @@ module FileParser
     application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
   ].freeze
 
+  MAX_FILE_SIZE = 5.megabytes
+
   def parse_file(file)
     case file.content_type
     when 'text/csv'
