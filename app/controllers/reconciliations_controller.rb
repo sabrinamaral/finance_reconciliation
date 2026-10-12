@@ -146,6 +146,8 @@ class ReconciliationsController < ApplicationController
   def match(csv_data1, csv_data2)
     records2 = csv_data2.to_a
     csv_data1.each do |record1|
+      next if record1.reconciled
+
       found = records2.find do |record2|
         record1[:date] == record2[:date] &&
         record1[:amount] == record2[:amount] &&

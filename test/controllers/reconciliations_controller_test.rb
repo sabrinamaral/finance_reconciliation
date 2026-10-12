@@ -39,6 +39,16 @@ end
     refute @non_matching_record2.reload.reconciled, "Non-matching record 2 should not be reconciled"
   end
 
+  test "does not match an already reconciled bank record again" do
+    @matching_record1.update!(reconciled: true)
+    extra = FinanceRecord2.create!(date: '2025-04-21', amount: 100, reconciled: false, user: @user)
+
+    controller = ReconciliationsController.new
+    controller.send(:match, FinanceRecord.where(id: @matching_record1.id), FinanceRecord2.where(id: extra.id))
+
+    refute extra.reload.reconciled, "System record should stay unreconciled"
+  end
+
   test "should not proceed without both CSV files" do
     post reconciliations_path, params: { file1: nil, file2: nil }
     assert_response :unprocessable_entity
