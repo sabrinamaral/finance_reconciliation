@@ -45,12 +45,19 @@ class ReceiptReconciliationsController < ApplicationController
 
   def delete_all
     period = @audit.audit_periods.find_by(id: params[:period_id])
-    if period
+
+    unless period
+      redirect_to receipt_reconciliations_path, alert: "Period not found."
+      return
+    end
+
+    ActiveRecord::Base.transaction do
       FinanceRecord3.for_current_user.where(audit_period: period).destroy_all
       ReceiptMatch.joins(:finance_record)
                   .where(finance_records: { audit_period_id: period.id })
                   .update_all(finance_record3_id: nil, checked: false, reconciled: false)
     end
+
     redirect_to receipt_reconciliations_path, notice: "All receipts for this period have been deleted."
   end
 
