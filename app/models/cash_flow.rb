@@ -11,33 +11,46 @@ class CashFlow < ApplicationRecord
   validates :transaction_type, presence: true
 
 
-  def self.import_from_csv(file, user)
-    headers = nil
-    CSV.foreach(file, headers: true) do |row|
-      if headers.nil?
-        headers = row.headers.map(&:strip).map(&:underscore)
-        unless headers_match?(headers)
-          return { success: false, error: "CSV headers must be: #{EXPECTED_HEADERS.join(', ')}" }
-        end
-      end
-      # Parse the amount
-      cash_flow_attributes = row.to_hash.transform_keys(&:underscore)
-      cash_flow_attributes['amount'] = cash_flow_attributes['amount']&.gsub(/[[:space:]]/, '')&.tr('R$', '')
-      cash_flow_attributes['amount'] = cash_flow_attributes['amount'].gsub('.', '')&.gsub(',', '.').to_f
-      # Parse the date
-        parsed_date = DateParser.parse(cash_flow_attributes['date'])
-        if parsed_date[:success]
-          cash_flow_attributes['date'] = parsed_date[:date]
-        else
-          return { success: false, error: parsed_date[:error] }
-        end
+    class ImportError < StandardError; end
 
-      user.cash_flows.create!(cash_flow_attributes)
+  def self.import_from_csv(file, user)
+    rows = CSV.read(file, headers: true)
+    return { success: true } if rows.empty?
+
+    headers = rows.headers.compact.map { |header| header.strip.underscore }
+    unless headers_match?(headers)
+      return { success: false, error: "CSV headers must be: #{EXPECTED_HEADERS.join(', ')}" }
+    end
+
+    transaction do
+      rows.each.with_index(2) do |row, line| # line 1 is the header
+        attributes = row.to_h.transform_keys { |key| key.to_s.strip.underscore }
+
+        parsed_date = DateParser.parse(attributes['date'])
+        raise ImportError, "#{parsed_date[:error]} (row #{line})" unless parsed_date[:success]
+
+        attributes['date']   = parsed_date[:date]
+        attributes['amount'] = parse_amount(attributes['amount'])
+
+        record = user.cash_flows.new(attributes)
+        raise ImportError, "Row #{line}: #{record.errors.full_messages.join(', ')}" unless record.save
+      end
     end
     { success: true }
+  rescue ImportError => e
+    { success: false, error: e.message }
+  rescue CSV::MalformedCSVError => e
+    { success: false, error: "Malformed CSV file: #{e.message}" }
   end
 
   def self.headers_match?(headers)
     headers.sort == EXPECTED_HEADERS.sort
+  end
+
+  # "R$ 1.234,56" -> "1234.56"; blank stays nil so the presence validation catches it
+  def self.parse_amount(value)
+    return nil if value.blank?
+
+    value.gsub(/[[:space:]]/, '').delete('R$').delete('.').tr(',', '.')
   end
 end

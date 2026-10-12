@@ -16,7 +16,7 @@ class CashFlowsController < ApplicationController
 
     # Check if the file has a valid content type
     unless validate_csv(@csv_file)
-      flash[:alert] = 'Uploaded file must be a valid CSV format'
+      flash.now[:alert] = 'Uploaded file must be a valid CSV format'
       @cash_flow_records = CashFlow.for_current_user.order(date: :asc) # Ensure transactions are loaded
       render :index, status: :unprocessable_entity
       return
@@ -28,7 +28,7 @@ class CashFlowsController < ApplicationController
     if result[:success]
       flash[:notice] = 'Cash flow records are successfully created.'
     else
-      flash[:alert] = result[:error] || 'CSV headers must be: date, description, amount, transaction_type.'
+      flash.now[:alert] = result[:error] || 'CSV headers must be: date, description, amount, transaction_type.'
       @cash_flow_records = CashFlow.for_current_user.order(date: :asc) # Ensure transactions are loaded
       render :index, status: :unprocessable_entity
       return

@@ -27,4 +27,12 @@ class CashFlowTest < ActiveSupport::TestCase
     assert result[:success], "Expected import to succeed for empty file"
     assert_equal 0, CashFlow.count, "Expected no records to be created"
   end
+
+  test "should not save any row when one row is invalid" do
+    result = CashFlow.import_from_csv(file_fixture("cash_flows_invalid_row.csv").to_s, @user)
+    assert_not result[:success], "Expected import to fail"
+    assert_match(/row 3/, result[:error])
+    assert_equal 0, CashFlow.count, "Expected the valid first row to be rolled back"
+  end
+
 end
