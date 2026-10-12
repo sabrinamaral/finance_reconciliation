@@ -96,6 +96,3 @@ gem 'ostruct'
 
 # mailer
 gem 'resend'
-
-# HTTP client
-gem 'faraday'

@@ -1,6 +1,6 @@
 class ReconciliationsController < ApplicationController
   before_action :set_audit
-  before_action :set_period, only: [:index, :create, :download_pdf,:download_excel ,:audit,
+  before_action :set_period, only: [:index, :create, :download_pdf, :download_excel,
                                     :toggle_checked, :bulk_check]
 
   def index
@@ -91,25 +91,6 @@ class ReconciliationsController < ApplicationController
     @csv_data1 = apply_scope(@csv_data1)
     @csv_data2 = apply_scope(@csv_data2)
     render xlsx: "download_excel", filename: "reconciliation_#{@period.label.tr('/', '-')}.xlsx"
-  end
-
-  def audit
-    load_records
-    unreconciled1 = FinanceRecord.for_current_user
-                                .where(audit_period: @period, checked: false)
-    unreconciled2 = FinanceRecord2.for_current_user
-                                  .where(audit_period: @period, checked: false)
-
-    service = ClaudeAuditService.new(unreconciled1, unreconciled2)
-    result = service.call
-
-    if result[:success]
-      @analysis = result[:analysis]
-    else
-      flash.now[:alert] = result[:error]
-    end
-
-    render :audit
   end
 
   def toggle_checked
