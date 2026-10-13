@@ -3,7 +3,11 @@ class CashFlow < ApplicationRecord
   belongs_to :user
   scope :for_current_user, -> { Current.user ? where(user_id: Current.user.id) : none}
 
-  EXPECTED_HEADERS = %w[date description amount transaction_type].freeze
+  TRANSACTION_TYPES = { "D" => 0, "C" => 1 }.freeze # debit / credit
+  COLUMNS = %w[date description amount transaction_type].freeze
+  COLUMNS_ERROR = "CSV must have #{COLUMNS.size} columns in this order: " \
+                  "date, description, amount and type (D or C). Header names can be in any language.".freeze
+
 
   validates :date, presence: true
   validates :description, presence: true
@@ -17,14 +21,10 @@ class CashFlow < ApplicationRecord
     rows = CSV.read(file, headers: true)
     return { success: true } if rows.empty?
 
-    headers = rows.headers.compact.map { |header| header.strip.underscore }
-    unless headers_match?(headers)
-      return { success: false, error: "CSV headers must be: #{EXPECTED_HEADERS.join(', ')}" }
-    end
+    return { success: false, error: COLUMNS_ERROR } if rows.headers.compact.size < COLUMNS.size
 
-    records = rows.map do |row|
-      row.to_h.transform_keys { |key| key.to_s.strip.underscore }.slice(*EXPECTED_HEADERS)
-    end
+    records = rows.map { |row| COLUMNS.zip(row.fields.first(COLUMNS.size)).to_h }
+
 
     date_order = DateParser.detect_order(records.map { |attributes| attributes['date'] })
     return { success: false, error: DateParser::CONFLICT_ERROR } if date_order == :conflict
@@ -37,6 +37,11 @@ class CashFlow < ApplicationRecord
 
         attributes['date']   = parsed_date[:date]
         attributes['amount'] = parse_amount(attributes['amount'])
+
+        raw_type = attributes['transaction_type']
+        type = TRANSACTION_TYPES[raw_type.to_s.strip.upcase]
+        raise ImportError, "Invalid entry type '#{raw_type}'. Expected 'C' or 'D'. (row #{line})" unless type
+        attributes['transaction_type'] = type
 
         record = user.cash_flows.new(attributes)
         raise ImportError, "Row #{line}: #{record.errors.full_messages.join(', ')}" unless record.save
