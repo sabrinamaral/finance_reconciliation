@@ -10,9 +10,14 @@ class InvoiceDataSaver
   end
 
   def call
+    rows = parse_file(@file)
+    date_order = DateParser.detect_order(rows.map { |row| row.fields[0] })
+    raise ImportError, DateParser::CONFLICT_ERROR if date_order == :conflict
+
     ActiveRecord::Base.transaction do
-      parse_file(@file).each_with_index do |row, index|
-        result = CsvImporter.parse_row(row)
+      rows.each_with_index do |row, index|
+        result = CsvImporter.parse_row(row, date_order: date_order)
+
         raise ImportError, "#{result.error} (row #{index + 1})" unless result.success
 
         record = @model.new(result.data.merge(audit_period: @period, user: @user))
@@ -20,7 +25,7 @@ class InvoiceDataSaver
       end
     end
     { success: true }
-  rescue ImportError => e
+  rescue ImportError, FileParser::MixedDateFormatsError => e
     { success: false, error: e.message }
   rescue => e
     Rails.logger.error "InvoiceDataSaver failed: #{e.message}"

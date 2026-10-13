@@ -18,7 +18,7 @@ class ReconciliationDataSaver
       process_file(@file2, @model2)
     end
     { success: true }
-  rescue ImportError => e
+  rescue ImportError, FileParser::MixedDateFormatsError => e
     Rails.logger.error "Import failed: #{e.message}"
     { success: false, error: e.message }
   rescue => e
@@ -29,8 +29,13 @@ class ReconciliationDataSaver
   private
 
   def process_file(file, model)
-    parse_file(file).each_with_index do |row, index|
-      result = CsvImporter.parse_row(row)
+    rows = parse_file(file)
+    date_order = DateParser.detect_order(rows.map { |row| row.fields[0] })
+    raise ImportError, DateParser::CONFLICT_ERROR if date_order == :conflict
+
+    rows.each_with_index do |row, index|
+      result = CsvImporter.parse_row(row, date_order: date_order)
+
       raise ImportError, "#{result.error} (row #{index + 1})" unless result.success
 
       record = model.new(result.data.merge(audit_period: @period, user: @user))

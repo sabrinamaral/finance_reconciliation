@@ -21,8 +21,13 @@ class ReconciliationCsvFileValidator
       return { success: false, error: "Files must be at most #{MAX_FILE_SIZE / 1.megabyte} MB" }
     end
 
-    file1_data = parse_file(@file1)
-    file2_data = parse_file(@file2)
+    begin
+      file1_data = parse_file(@file1)
+      file2_data = parse_file(@file2)
+    rescue FileParser::MixedDateFormatsError => e
+      return { success: false, error: e.message }
+    end
+
 
     if file1_data.empty? || file2_data.empty?
       return { success: false, error: 'One or both files are empty.'}

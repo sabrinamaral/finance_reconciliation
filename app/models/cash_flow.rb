@@ -22,11 +22,17 @@ class CashFlow < ApplicationRecord
       return { success: false, error: "CSV headers must be: #{EXPECTED_HEADERS.join(', ')}" }
     end
 
-    transaction do
-      rows.each.with_index(2) do |row, line| # line 1 is the header
-        attributes = row.to_h.transform_keys { |key| key.to_s.strip.underscore }.slice(*EXPECTED_HEADERS)
+    records = rows.map do |row|
+      row.to_h.transform_keys { |key| key.to_s.strip.underscore }.slice(*EXPECTED_HEADERS)
+    end
 
-        parsed_date = DateParser.parse(attributes['date'])
+    date_order = DateParser.detect_order(records.map { |attributes| attributes['date'] })
+    return { success: false, error: DateParser::CONFLICT_ERROR } if date_order == :conflict
+
+    transaction do
+      records.each.with_index(2) do |attributes, line| # line 1 is the header
+        parsed_date = DateParser.parse(attributes['date'], order: date_order)
+
         raise ImportError, "#{parsed_date[:error]} (row #{line})" unless parsed_date[:success]
 
         attributes['date']   = parsed_date[:date]
