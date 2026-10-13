@@ -5,8 +5,9 @@ class CsvImporter
 
   Result = Struct.new(:success, :data, :error, keyword_init: true)
 
-  def self.parse_row(row)
-    parsed_date = DateParser.parse(row.fields[0])
+  def self.parse_row(row, date_order: :dmy)
+    parsed_date = DateParser.parse(row.fields[0], order: date_order)
+
     return Result.new(success: false, error: parsed_date[:error]) unless parsed_date[:success]
 
     amount_str = row.fields[2]&.gsub(/[[:space:]]/, '')&.tr('R$', '')
