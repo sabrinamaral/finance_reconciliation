@@ -24,7 +24,7 @@ class ReconciliationCsvFileValidator
     begin
       file1_data = parse_file(@file1)
       file2_data = parse_file(@file2)
-    rescue FileParser::MixedDateFormatsError => e
+    rescue FileParser::Error => e
       return { success: false, error: e.message }
     end
 

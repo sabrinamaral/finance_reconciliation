@@ -18,7 +18,7 @@ class ReconciliationDataSaver
       process_file(@file2, @model2)
     end
     { success: true }
-  rescue ImportError, FileParser::MixedDateFormatsError => e
+  rescue ImportError, FileParser::Error => e
     Rails.logger.error "Import failed: #{e.message}"
     { success: false, error: e.message }
   rescue => e
@@ -41,7 +41,5 @@ class ReconciliationDataSaver
       record = model.new(result.data.merge(audit_period: @period, user: @user))
       raise ImportError, "Failed to save record: #{record.errors.full_messages.join(', ')}" unless record.save
     end
-  rescue CSV::MalformedCSVError => e
-    raise ImportError, "Malformed CSV file: #{e.message}"
   end
 end

@@ -25,7 +25,7 @@ class InvoiceDataSaver
       end
     end
     { success: true }
-  rescue ImportError, FileParser::MixedDateFormatsError => e
+  rescue ImportError, FileParser::Error => e
     { success: false, error: e.message }
   rescue => e
     Rails.logger.error "InvoiceDataSaver failed: #{e.message}"

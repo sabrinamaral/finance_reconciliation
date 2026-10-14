@@ -18,7 +18,7 @@ class CashFlow < ApplicationRecord
   class ImportError < StandardError; end
 
   def self.import_from_csv(file, user)
-    rows = CSV.read(file, headers: true)
+    rows = CSV.read(file, headers: true, encoding: "bom|utf-8")
     return { success: true } if rows.empty?
 
     return { success: false, error: COLUMNS_ERROR } if rows.headers.compact.size < COLUMNS.size

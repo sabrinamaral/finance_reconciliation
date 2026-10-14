@@ -1,11 +1,20 @@
 require 'csv'
 
 module FileParser
+  # Base class for file reading errors, so callers can rescue them all at once.
+  class Error < StandardError; end
+
   # Raised when an Excel date column has both real dates and text.
-  class MixedDateFormatsError < StandardError
-    def initialize(msg = "The date column mixes real dates and text, so Excel may have swapped " \
-                        "day and month in some rows. Format the whole date column as Text " \
+  class MixedDateFormatsError < Error
+    def initialize(msg = "The date column mixes real dates and text. Format the whole date column as Text " \
                         "(or as Date) in Excel and upload the file again.")
+      super
+    end
+  end
+
+  # Raised when the file can't be read (corrupted, wrong encoding, unsupported format).
+  class UnreadableFileError < Error
+    def initialize(msg = "The file could not be read. Check that it is a valid CSV file saved as UTF-8.")
       super
     end
   end
@@ -21,7 +30,7 @@ module FileParser
   def parse_file(file)
     case file.content_type
     when 'text/csv'
-      CSV.read(file.path, headers: true)
+      CSV.read(file.path, headers: true, encoding: "bom|utf-8")
     else
       spreadsheet = Roo::Spreadsheet.open(file.path, clean: true)
       headers = spreadsheet.row(1)
@@ -34,6 +43,11 @@ module FileParser
         CSV::Row.new(headers, normalized_row)
       end
     end
+  rescue Error
+    raise
+  rescue StandardError => e
+    Rails.logger.warn "Could not read #{file.original_filename}: #{e.class}: #{e.message}"
+    raise UnreadableFileError
   end
 
   private
