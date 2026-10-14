@@ -8,7 +8,6 @@ class DateParser
 
   CONFLICT_ERROR = "Inconsistent date formats in file: found both DD/MM and MM/DD dates.".freeze
 
-
   # Scans every date of a file to decide between DD/MM (:dmy) and MM/DD (:mdy).
   # A number above 12 can only be a day, which reveals the order.
   # Returns :conflict when both orders appear; defaults to :dmy when all dates are ambiguous.
@@ -34,7 +33,7 @@ class DateParser
 
     FORMATS.fetch(order).each do |format|
       begin
-        date = Date.strptime(date_string, format)
+        date = Date.strptime(date_string.to_s, format)
         if date.year > 1980 && date.month.between?(1, 12) && date.day.between?(1, 31)
           return { success: :success, date: date }
         end

@@ -33,7 +33,7 @@ class ReconciliationDataSaverTest < ActiveSupport::TestCase
     assert_no_difference [-> { FinanceRecord.count }, -> { FinanceRecord2.count }] do
       result = service.call
       assert_not result[:success]
-      assert_match(/Invalid date format \(row 1\)/, result[:error])
+      assert_match(/Invalid date format \(row 2\)/, result[:error])
     end
   end
 

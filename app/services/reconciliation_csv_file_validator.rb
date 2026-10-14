@@ -40,7 +40,7 @@ class ReconciliationCsvFileValidator
     end
 
     if invalid_rows
-      return {success:false, error: 'Invalid rows found in the files. Enrsure taht all rows and coumns have content.'}
+      return {success:false, error: 'Invalid rows found in the files. Ensure that all rows and columns have content.'}
     end
 
     { success: true }
@@ -48,7 +48,7 @@ class ReconciliationCsvFileValidator
 
   def validate_single
     return { success: false, error: "File is missing." } unless @file1
-    return { success: false, error: "File must be a CSV." } unless valid_content_type?(@file1)
+    return { success: false, error: "File must be a CSV or Excel file." } unless valid_content_type?(@file1)
     return { success: false, error: "File must be at most #{MAX_FILE_SIZE / 1.megabyte} MB." } unless valid_size?(@file1)
     { success: true }
   end

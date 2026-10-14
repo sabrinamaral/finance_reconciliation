@@ -35,8 +35,8 @@ class ReconciliationDataSaver
 
     rows.each_with_index do |row, index|
       result = CsvImporter.parse_row(row, date_order: date_order)
-
-      raise ImportError, "#{result.error} (row #{index + 1})" unless result.success
+      # +1 for zero-based index, +1 for the header row
+      raise ImportError, "#{result.error} (row #{index + 2})" unless result.success
 
       record = model.new(result.data.merge(audit_period: @period, user: @user))
       raise ImportError, "Failed to save record: #{record.errors.full_messages.join(', ')}" unless record.save

@@ -1,9 +1,5 @@
 class CashFlowsController < ApplicationController
 
-  def new
-    @cash_flow_records = CashFlow.for_current_user.all
-  end
-
   def create
     file = params.dig(:cash_flow, :file)
     return render_upload_error("Please upload a CSV file.") unless file
@@ -18,10 +14,6 @@ class CashFlowsController < ApplicationController
 
   def index
     @cash_flow_records = CashFlow.for_current_user.order(date: :asc)
-  end
-
-  def edit
-    @cash_flow_records = CashFlow.for_current_user.find(params[:id])
   end
 
   def update

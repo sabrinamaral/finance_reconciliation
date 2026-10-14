@@ -8,12 +8,10 @@ class CashFlow < ApplicationRecord
   COLUMNS_ERROR = "CSV must have #{COLUMNS.size} columns in this order: " \
                   "date, description, amount and type (D or C). Header names can be in any language.".freeze
 
-
   validates :date, presence: true
   validates :description, presence: true
   validates :amount, presence: true, numericality: true
   validates :transaction_type, presence: true
-
 
   class ImportError < StandardError; end
 
@@ -24,7 +22,6 @@ class CashFlow < ApplicationRecord
     return { success: false, error: COLUMNS_ERROR } if rows.headers.compact.size < COLUMNS.size
 
     records = rows.map { |row| COLUMNS.zip(row.fields.first(COLUMNS.size)).to_h }
-
 
     date_order = DateParser.detect_order(records.map { |attributes| attributes['date'] })
     return { success: false, error: DateParser::CONFLICT_ERROR } if date_order == :conflict
@@ -52,10 +49,6 @@ class CashFlow < ApplicationRecord
     { success: false, error: e.message }
   rescue CSV::MalformedCSVError => e
     { success: false, error: "Malformed CSV file: #{e.message}" }
-  end
-
-  def self.headers_match?(headers)
-    headers.sort == EXPECTED_HEADERS.sort
   end
 
   # "R$ 1.234,56" -> "1234.56"; blank stays nil so the presence validation catches it
