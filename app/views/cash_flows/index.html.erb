@@ -33,7 +33,11 @@
 <div class="d-flex justify-content-between mb-2 w-100 custom-balance">
   <%# DELETE ALL TRANSACTIONS IN ONCE %>
   <div>
-    <%= button_to 'delete all transactions', { action: 'delete_all' }, method: :delete, data: { confirm: 'Are you sure?'}, class: "btn btn-outline-primary mb-2"%>
+    <%= button_to 'delete all transactions',
+    { action: 'delete_all' },
+    method: :delete,
+    form: { data: { turbo_confirm: "This will permanently delete all cash flow records. Are you sure?" } },
+    class: "btn btn-outline-primary mb-2"%>
   </div>
   <%# ADD STARTING BALANCE %>
   <div data-controller='balance-form' class="d-flex">
