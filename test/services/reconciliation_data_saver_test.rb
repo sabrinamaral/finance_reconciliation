@@ -45,6 +45,14 @@ class ReconciliationDataSaverTest < ActiveSupport::TestCase
     end
   end
 
+  test "reads every date of a US formatted file as MM/DD" do
+    service = build_service(@valid_file, csv_upload("us_dates_file.csv"))
+    assert service.call[:success]
+
+    dates = FinanceRecord2.where(description: ["Ambiguous date", "Revealing date"]).order(:date).pluck(:date)
+    assert_equal [Date.new(2025, 4, 5), Date.new(2025, 4, 15)], dates
+  end
+
   private
 
   def build_service(file1, file2)
