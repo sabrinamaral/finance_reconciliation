@@ -28,17 +28,11 @@ class ReconciliationCsvFileValidator
       return { success: false, error: e.message }
     end
 
-
     if file1_data.empty? || file2_data.empty?
-      return { success: false, error: 'One or both files are empty.'}
+      return { success: false, error: 'One or both files have no data rows.'}
     end
 
-    # # Check if the files have more than the headears
-    if file1_data.size <= 1 || file2_data.size <= 1
-      return { success: false, error: "One or both files contain only headers."}
-    end
-
-    # # Validate rows in file1
+    # Validate rows in file1
     invalid_rows = [file1_data, file2_data].any? do |data|
       data.any? do |row|
         row.compact.size < 3
@@ -58,7 +52,6 @@ class ReconciliationCsvFileValidator
     return { success: false, error: "File must be at most #{MAX_FILE_SIZE / 1.megabyte} MB." } unless valid_size?(@file1)
     { success: true }
   end
-
 
   private
 
