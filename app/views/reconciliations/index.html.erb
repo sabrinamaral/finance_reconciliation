@@ -70,6 +70,13 @@
                           form: { data: { turbo_confirm: "This will permanently delete all records for #{@period.label}. This action cannot be undone. Are you sure?" } },
                           class: "dropdown-item text-danger" %>
           </li>
+          <li>
+            <%= button_to "Delete Period",
+                          audit_period_path(@period),
+                          method: :delete,
+                          form: { data: { turbo_confirm: "This will permanently delete the period #{@period.label} and ALL its data: bank statement, system records, receipts and invoices. This action cannot be undone. Are you sure?" } },
+                          class: "dropdown-item text-danger" %>
+          </li>
         </ul>
       </div>
     </div>

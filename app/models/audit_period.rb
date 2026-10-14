@@ -13,6 +13,30 @@ class AuditPeriod < ApplicationRecord
   validates :month, uniqueness: { scope: [:audit_id, :year],
                     message: "already exists for this audit and year" }
 
+  # Deletes the period and everything imported into it, in foreign key order:
+  # matches first, then the records they point to, then the period itself.
+  def destroy_with_records!
+    transaction do
+      bank_ids    = FinanceRecord.where(audit_period: self).select(:id)
+      receipt_ids = FinanceRecord3.where(audit_period: self).select(:id)
+      invoice_ids = FinanceRecord4.where(audit_period: self).select(:id)
+
+      ReceiptMatch.where(finance_record_id: bank_ids)
+                  .or(ReceiptMatch.where(finance_record3_id: receipt_ids))
+                  .delete_all
+      InvoiceMatch.where(finance_record_id: bank_ids)
+                  .or(InvoiceMatch.where(finance_record4_id: invoice_ids))
+                  .delete_all
+
+      [FinanceRecord, FinanceRecord2, FinanceRecord3, FinanceRecord4].each do |model|
+        model.where(audit_period: self).delete_all
+      end
+
+      destroy!
+    end
+  end
+
+
   def label
     Date.new(year, month, 1).strftime("%B/%Y")
   end

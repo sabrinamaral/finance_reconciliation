@@ -32,7 +32,7 @@ Rails.application.routes.draw do
   post "reset_balance", to: "cash_flows#reset_balance"
 
   resources :audits, only: [] do
-    resources :audit_periods, only: [:create], shallow: true
+    resources :audit_periods, only: [:create, :destroy], shallow: true
   end
 
   resources :reconciliations, only: [:create, :index] do

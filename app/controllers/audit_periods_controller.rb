@@ -12,6 +12,18 @@ class AuditPeriodsController < ApplicationController
     end
   end
 
+  def destroy
+    audit  = Audit.find_by!(user_id: Current.user.id)
+    period = audit.audit_periods.find(params[:id])
+    label  = period.label
+
+    period.destroy_with_records!
+    session.delete(:current_period_id) if session[:current_period_id] == period.id
+
+    redirect_to reconciliations_path, notice: "Period #{label} and all its records were deleted."
+  end
+
+
   private
 
   def period_params
