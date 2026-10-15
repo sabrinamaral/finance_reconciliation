@@ -1,41 +1,65 @@
 require "test_helper"
 
 class ReconciliationDataSaverTest < ActiveSupport::TestCase
-  def setup
-    @valid_file = file_fixture("reconciliation_valid_file.csv")
-    @invalid_date_file = file_fixture("invalid_date_file.csv")
-    @model_1 = FinanceRecord
-    @model_2 = FinanceRecord2
-
-    # Clear the database before each test
-    @model_1.delete_all
-    @model_2.delete_all
-  end
-
-  test "should save valid data to the database" do
+  setup do
     Current.user = users(:one)
-    service = ReconciliationDataSaver.new(@valid_file, @valid_file, @model_1, @model_2)
-    result = service.call
-
-    assert result[:success]
-    assert_equal 3, @model_1.count
+    @period = audit_periods(:one)
+    @valid_file        = csv_upload("reconciliation_valid_file.csv")
+    @invalid_date_file = csv_upload("invalid_date_file.csv")
   end
 
-  test "should return an error if record fails to save" do
-    @model_1.any_instance.stubs(:save).returns(false) do
-      service = ReconciliationDataSaver.new(@valid_file, @model_1)
-      result = service.call
+  test "saves valid data from both files" do
+    service = build_service(@valid_file, @valid_file)
 
+    assert_difference({ -> { FinanceRecord.count } => 3, -> { FinanceRecord2.count } => 3 }) do
+      assert service.call[:success]
+    end
+  end
+
+  test "returns an error and saves nothing if a record fails to save" do
+    FinanceRecord.any_instance.stubs(:save).returns(false)
+    service = build_service(@valid_file, @valid_file)
+
+    assert_no_difference [-> { FinanceRecord.count }, -> { FinanceRecord2.count }] do
+      result = service.call
       assert_not result[:success]
       assert_match(/Failed to save record/, result[:error])
     end
   end
 
-    test "should return an error for invalid date format" do
-      service = ReconciliationDataSaver.new( @invalid_date_file, @invalid_date_file, @model_1, @model_2)
-      result = service.call
+  test "returns an error for invalid date format" do
+    service = build_service(@invalid_date_file, @valid_file)
 
+    assert_no_difference [-> { FinanceRecord.count }, -> { FinanceRecord2.count }] do
+      result = service.call
       assert_not result[:success]
-      assert_equal 0, @model_1.count
+      assert_match(/Invalid date format \(row 2\)/, result[:error])
     end
+  end
+
+  test "rolls back the first file when the second file is invalid" do
+    service = build_service(@valid_file, @invalid_date_file)
+
+    assert_no_difference [-> { FinanceRecord.count }, -> { FinanceRecord2.count }] do
+      assert_not service.call[:success]
+    end
+  end
+
+  test "reads every date of a US formatted file as MM/DD" do
+    service = build_service(@valid_file, csv_upload("us_dates_file.csv"))
+    assert service.call[:success]
+
+    dates = FinanceRecord2.where(description: ["Ambiguous date", "Revealing date"]).order(:date).pluck(:date)
+    assert_equal [Date.new(2025, 4, 5), Date.new(2025, 4, 15)], dates
+  end
+
+  private
+
+  def build_service(file1, file2)
+    ReconciliationDataSaver.new(file1, file2, FinanceRecord, FinanceRecord2, @period)
+  end
+
+  def csv_upload(name)
+    Rack::Test::UploadedFile.new(file_fixture(name), "text/csv")
+  end
 end

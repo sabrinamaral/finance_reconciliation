@@ -1,48 +1,19 @@
 class CashFlowsController < ApplicationController
 
-  def new
-    @cash_flow_records = CashFlow.for_current_user.all
-  end
-
   def create
-    unless params[:cash_flow].present?
-      flash.now[:alert] = 'Please upload a CSV file.'
-      @cash_flow_records = CashFlow.for_current_user.order(date: :asc) # Ensure transactions are loaded
-      render :index, status: :unprocessable_entity
-      return
-    end
+    file = params.dig(:cash_flow, :file)
+    return render_upload_error("Please upload a CSV file.") unless file
+    return render_upload_error("Uploaded file must be a CSV.") unless csv_file?(file)
+    return render_upload_error("Uploaded file must be at most #{FileParser::MAX_FILE_SIZE / 1.megabyte} MB.") if file.size > FileParser::MAX_FILE_SIZE
 
-    @csv_file = params[:cash_flow][:file]
+    result = CashFlow.import_from_csv(file, Current.user)
+    return render_upload_error(result[:error]) unless result[:success]
 
-    # Check if the file has a valid content type
-    unless validate_csv(@csv_file)
-      flash[:alert] = 'Uploaded file must be a valid CSV format'
-      @cash_flow_records = CashFlow.for_current_user.order(date: :asc) # Ensure transactions are loaded
-      render :index, status: :unprocessable_entity
-      return
-    end
-
-    # Process the CSV file
-    result = CashFlow.import_from_csv(@csv_file, Current.user)
-
-    if result[:success]
-      flash[:notice] = 'Cash flow records are successfully created.'
-    else
-      flash[:alert] = result[:error] || 'CSV headers must be: date, description, amount, transaction_type.'
-      @cash_flow_records = CashFlow.for_current_user.order(date: :asc) # Ensure transactions are loaded
-      render :index, status: :unprocessable_entity
-      return
-    end
-
-    redirect_to cash_flows_path
+    redirect_to cash_flows_path, notice: "Cash flow records are successfully created."
   end
 
   def index
     @cash_flow_records = CashFlow.for_current_user.order(date: :asc)
-  end
-
-  def edit
-    @cash_flow_records = CashFlow.for_current_user.find(params[:id])
   end
 
   def update
@@ -104,15 +75,17 @@ class CashFlowsController < ApplicationController
     params.require(:cash_flow).permit(:date, :description, :amount, :transaction_type)
   end
 
-  def validate_csv(file)
-    return false  unless file.respond_to?(:content_type)
-      content_type = file.content_type
-      content_type == "text/csv"
+  def csv_file?(file)
+    file.respond_to?(:original_filename) &&
+      File.extname(file.original_filename.to_s).casecmp?(".csv")
   end
 
-  def headers_match?(headers)
-    headers.sort == CashFlow::EXPECTED_HEADERS.sort
+  def render_upload_error(message)
+    flash.now[:alert] = message
+    @cash_flow_records = CashFlow.for_current_user.order(date: :asc)
+    render :index, status: :unprocessable_entity
   end
+
 
   def is_number?(string)
     true if Float(string) rescue false

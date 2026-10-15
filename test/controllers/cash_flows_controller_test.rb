@@ -8,7 +8,7 @@ class CashFlowsControllerTest < ActionDispatch::IntegrationTest
     sign_in @user
     @cash_flow = CashFlow.create!(date: "2025-04-01", description: "Test", amount: 100, transaction_type: 0, user: @user)
     @valid_csv = Rack::Test::UploadedFile.new(file_fixture("valid_cash_flows.csv"), "text/csv")
-    @invalid_csv = Rack::Test::UploadedFile.new(file_fixture("invalid_headers.csv"),"text/csv")
+    @invalid_csv = Rack::Test::UploadedFile.new(file_fixture("cash_flows_missing_column.csv"),"text/csv")
     @invalid_content_type = Rack::Test::UploadedFile.new(file_fixture("invalid_format.txt"))
   end
 
@@ -27,13 +27,13 @@ class CashFlowsControllerTest < ActionDispatch::IntegrationTest
   test "should not create cash flows from invalid CSV" do
     post cash_flows_path, params: { cash_flow: { file: @invalid_csv } }
     assert_response :unprocessable_entity
-    assert_equal "CSV headers must be: date, description, amount, transaction_type", flash[:alert]
+    assert_equal CashFlow::COLUMNS_ERROR, flash[:alert]
   end
 
   test "should reject invalid content type" do
     post cash_flows_path params: { cash_flow: { file: @invalid_content_type } }
     assert_response :unprocessable_entity
-    assert_equal "Uploaded file must be a valid CSV format", flash[:alert]
+    assert_equal "Uploaded file must be a CSV.", flash[:alert]
   end
 
   test "should not create cash flows without file" do

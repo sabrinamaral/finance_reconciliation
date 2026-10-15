@@ -5,15 +5,16 @@ class DevisePasswordResetTest < ActionDispatch::IntegrationTest
     @user = users(:one) # Assuming you have a user fixture named :one
   end
 
-  test "should send password reset email" do
-    post user_password_path, params: { user: { email: @user.email } }
-    assert_response :redirect
-    follow_redirect!
-    assert_match (/You will receive an email with instructions on how to reset your password in a few minutes./), flash[:notice]
+  test "does not expose the public password reset request" do
+    assert_no_emails do
+      post user_password_path, params: { user: { email: @user.email } }
+    end
+    assert_response :not_found
   end
 
+
   test "should reset password with valid token" do
-    raw_token = @user.send_reset_password_instructions
+        raw_token = @user.send(:set_reset_password_token)
 
     put user_password_path, params: {
       user: {

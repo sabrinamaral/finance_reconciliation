@@ -1,65 +1,213 @@
 /*
- * This is a manifest file that'll be compiled into application.css, which will include all the files
- * listed below.
- *
- * Any CSS (and SCSS, if configured) file within this directory, lib/assets/stylesheets, or any plugin's
- * vendor/assets/stylesheets directory can be referenced here using a relative path.
- *
- * You're free to add application-wide styles to this file and they'll appear at the bottom of the
- * compiled file so the styles you add here take precedence over styles defined in any other CSS
- * files in this directory. Styles in this file should be added after the last require_* statement.
- * It is generally better to create a new file per style scope.
- *
- *= require_tree .
- *= require_self
+ * Main application stylesheet
+ * Requires Bootstrap and applies global styles
  */
-@import "bootstrap";
+@import 'bootstrap';
+
+// ─── Base ────────────────────────────────────────────────────────────────────
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
-  background-color: #f5f5f5;
+  font-family: 'Inter', Arial, sans-serif;
+  background-color: #f0f2f5;
+  color: #2d3748;
 }
+
+// ─── Navigation tabs ─────────────────────────────────────────────────────────
+
+.flow-tabs {
+  display: flex;
+  gap: 4px;
+  align-items: flex-end;
+  margin-bottom: -40px;
+  margin-left: 30px;
+  padding-bottom: 0;
+}
+
+.flow-tab {
+  display: block;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.85em;
+  font-weight: 500;
+  color: #6c757d;
+  text-decoration: none;
+  border-radius: 8px 8px 0 0;
+  border: 1px solid transparent;
+  border-bottom: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background-color: #f0f2f5;
+    color: #2d3748;
+  }
+
+  &.active {
+    background-color: #f0f2f5;
+    color: #2d3748 !important;
+    border-color: #dee2e6;
+    border-bottom-color: #e9ecef;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .flow-tabs {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .flow-tab {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    margin-bottom: 0;
+
+    &.active {
+      border-bottom: 1px solid #dee2e6;
+    }
+  }
+}
+
+// ─── Dropdown submenu ────────────────────────────────────────────────────────
+
+.dropdown-submenu {
+  position: relative;
+
+  > .dropdown-toggle-submenu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.submenu {
+  display: none;
+  position: static; // stays in normal document flow, drops below
+  min-width: 10rem;
+  margin-top: 0.25rem;
+
+  &.show {
+    display: block;
+  }
+}
+
+// ─── Tables ─────────────────────────────────────────────────────────────────
 
 .table {
-  font-size: 0.8em;
-  table-layout: auto; /* Allow columns to resize dynamically */
+  font-size: 0.82em;
+  table-layout: auto;
   width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-.match {
-  background-color: #d4edda !important;
-}
-
-.different {
-  background-color: #fff3cd !important;
-}
-
-.highlight {
-  background-color: #a9d7e2 !important;
+.table thead th {
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-size: 0.78em;
+  color: #6c757d;
 }
 
 .row-height {
   min-height: 3em;
+  display: flex;
+  align-items: center;
 }
 
 .amount-column {
   white-space: nowrap;
   text-align: left;
 }
+
+.table-scroll-wrapper {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+// ─── Row colors ──────────────────────────────────────────────────────────────
+
+.amount-debit {
+  color: #a93226;
+}
+
+.amount-credit {
+  color: #084298;
+}
+
+// Selected row (sum only) — temporary, browser only
+tr.selected-for-sum td {
+  outline: none;
+  border-top: 2px solid #0d6efd !important;
+  border-bottom: 2px solid #0d6efd !important;
+}
+
+tr.selected-for-sum td:first-child {
+  border-left: 2px solid #0d6efd !important;
+}
+
+tr.selected-for-sum td:last-child {
+  border-right: 2px solid #0d6efd !important;
+}
+
+// ─── Checkbox conferido ──────────────────────────────────────────────────────
+
+.check-cell {
+  width: 2em;
+  text-align: center;
+  vertical-align: middle;
+
+  input[type='checkbox'] {
+    width: 1.1em;
+    height: 1.1em;
+    cursor: pointer;
+    accent-color: #0d6efd;
+  }
+}
+
+tr.checked td {
+  background-color: #d6eafb !important;
+}
+
+// ─── Sum panel ───────────────────────────────────────────────────────────────
+
+#sum-panel {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  min-width: 180px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  padding: 1rem 1.25rem;
+  user-select: none;
+}
+
+.panel-drag-handle {
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+// ─── Typography ──────────────────────────────────────────────────────────────
+
 .title {
   text-transform: capitalize;
-  font-size: 20px;
-  padding-top: 1rem;
-  padding-bottom: 2rem;
+  font-size: 1.25rem;
+  padding: 1rem 0 2rem;
   color: #6c757d;
   text-align: center;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
+
+// ─── Buttons & icons ─────────────────────────────────────────────────────────
 
 .save-edit-icon,
 .cancel-edit-icon {
   border: none;
   background-color: transparent;
-  font-size: 20px;
+  font-size: 1.2rem;
 }
 
 .expense-color {
@@ -67,37 +215,81 @@ body {
 }
 
 .no-wrap {
-  white-space: nowrap; /* Prevent text from wrapping */
+  white-space: nowrap;
 }
 
 .margin-nav {
   margin-top: 8em;
 }
+
 .custom-shadow {
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-@media screen and (min-width: 768px) {
-  .nav-underline .nav-link.active,
-  .nav-underline .show > .nav-link {
-    border-bottom-color: #0d6efd !important;
-    border-bottom: 2px solid;
+.day-ruler {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  overflow: hidden;
+  width: fit-content;
+}
+
+.day-ruler-item {
+  border: none;
+  background-color: #f8f9fa;
+  color: #495057;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.8em;
+  font-weight: 500;
+  cursor: pointer;
+  border-right: 1px solid #dee2e6;
+  transition: background-color 0.15s ease;
+
+  &:last-child {
+    border-right: none;
+  }
+
+  &:hover {
+    background-color: #e9ecef;
+  }
+
+  &.day-complete {
+    background-color: #d6eafb;
+    color: #084298;
+  }
+
+  &.day-pending {
+    background-color: #fde2e2;
+    color: #a93226;
+  }
+
+  &.active {
+    background-color: #0d6efd !important;
+    color: #fff;
   }
 }
+
+// ─── Responsive ──────────────────────────────────────────────────────────────
 
 @media screen and (max-width: 768px) {
   .custom-form {
     margin-bottom: 0.5em !important;
   }
+
   .custom-form > form > .row > div {
     margin-bottom: 0.2em;
   }
+
   .custom-balance {
     display: block !important;
   }
+
   #navbarNav {
     margin-top: 0.5em;
   }
+
   #custom-color {
     color: rgba(0, 0, 0, 0.7) !important;
     font-weight: normal !important;

@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  finance_record: one
+  finance_record3: one
+  checked: false
+  reconciled: false
+
+two:
+  finance_record: two
+  finance_record3: two
+  checked: false
+  reconciled: false

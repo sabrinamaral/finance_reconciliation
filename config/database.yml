@@ -5,6 +5,7 @@ default: &default
 
 development:
   <<: *default
+  # TODO: rename to flow_development after migrating data from finance_reconciliation audit
   database: finance_reconciliation_development
 
 test:

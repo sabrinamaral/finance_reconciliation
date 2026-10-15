@@ -1,0 +1,35 @@
+wb = xlsx_package.workbook
+
+header_style = wb.styles.add_style(
+  b: true, bg_color: "E9ECEF", alignment: { horizontal: :center }
+)
+debit_style  = wb.styles.add_style(fg_color: "C0392B", format_code: '#,##0.00')
+credit_style = wb.styles.add_style(fg_color: "2E86C1", format_code: '#,##0.00')
+
+wb.add_worksheet(name: "Bank Statement") do |sheet|
+  sheet.add_row ["Date", "Description", "Amount", "Checked"], style: header_style
+
+  @csv_data1.each do |record|
+    style = record.amount.negative? ? debit_style : credit_style
+    sheet.add_row [
+      record.date,
+      record.description,
+      record.amount,
+      record.checked ? "Yes" : "No"
+    ], style: [nil, nil, style, nil]
+  end
+end
+
+wb.add_worksheet(name: "System Records") do |sheet|
+  sheet.add_row ["Date", "Description", "Amount", "Checked"], style: header_style
+
+  @csv_data2.each do |record|
+    style = record.amount.negative? ? debit_style : credit_style
+    sheet.add_row [
+      record.date,
+      record.description,
+      record.amount,
+      record.checked ? "Yes" : "No"
+    ], style: [nil, nil, style, nil]
+  end
+end

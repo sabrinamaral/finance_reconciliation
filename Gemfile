@@ -84,9 +84,12 @@ gem 'dotenv-rails', groups: [:development, :test]
 # CSV & EXCEL
 gem 'csv'
 gem "roo", "~> 3.0.0"
+gem 'caxlsx'
+gem 'caxlsx_rails'
 
-# Transform HTML into PDF
-gem 'grover'
+# PDF reports
+gem 'prawn'
+gem 'prawn-table'
 
 # These gems will no longer be part of the default gems starting from Ruby 3.5.0.
 gem 'ostruct'

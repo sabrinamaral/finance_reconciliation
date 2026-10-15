@@ -1,5 +1,4 @@
 require "test_helper"
-require "minitest/mock"
 
 class ReconciliationsControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers # Include Devise helpers
@@ -19,19 +18,14 @@ def setup
   @invalid_content_type = Rack::Test::UploadedFile.new(file_fixture("invalid_format.txt"))
 end
 
-  test "should get new and initialize instance variables" do
-    get new_reconciliation_path
-    assert_response :success
-    assert assigns(:file1).is_a?(FinanceRecord)
-    assert assigns(:file2).is_a?(FinanceRecord2)
-  end
-
   test "should get index and assign instance variables" do
-    Current.user = @user
+    period = audit_periods(:one)
     get reconciliations_path
     assert_response :success
-    assert_equal FinanceRecord.for_current_user.pluck(:id).sort, assigns(:csv_data1).pluck(:id).sort
-    assert_equal FinanceRecord2.for_current_user.pluck(:id).sort, assigns(:csv_data2).pluck(:id).sort
+    assert_equal FinanceRecord.where(user: @user, audit_period: period).pluck(:id).sort,
+                assigns(:csv_data1).pluck(:id).sort
+    assert_equal FinanceRecord2.where(user: @user, audit_period: period).pluck(:id).sort,
+                assigns(:csv_data2).pluck(:id).sort
   end
 
   test "reconciles matching records correctly" do
@@ -45,6 +39,16 @@ end
     refute @non_matching_record2.reload.reconciled, "Non-matching record 2 should not be reconciled"
   end
 
+  test "does not match an already reconciled bank record again" do
+    @matching_record1.update!(reconciled: true)
+    extra = FinanceRecord2.create!(date: '2025-04-21', amount: 100, reconciled: false, user: @user)
+
+    controller = ReconciliationsController.new
+    controller.send(:match, FinanceRecord.where(id: @matching_record1.id), FinanceRecord2.where(id: extra.id))
+
+    refute extra.reload.reconciled, "System record should stay unreconciled"
+  end
+
   test "should not proceed without both CSV files" do
     post reconciliations_path, params: { file1: nil, file2: nil }
     assert_response :unprocessable_entity
@@ -54,14 +58,16 @@ end
   test "should reject invalid content type" do
     post reconciliations_path, params: { file1: @invalid_content_type, file2: @invalid_content_type}
     assert_response :unprocessable_entity
-    assert_equal "Please upload CSV files only", flash[:alert]
+    assert_equal "Please upload CSV or Excel files only", flash[:alert]
   end
 
   test "should delete all transactions from reconciliation" do
-    delete delete_all_reconciliations_path
+    period = audit_periods(:one)
+    assert FinanceRecord.where(user: @user, audit_period: period).exists?
+    delete delete_all_reconciliations_path(period_id: period.id)
     assert_redirected_to root_path
-    assert_equal 0, FinanceRecord.for_current_user.count
-    assert_equal 0, FinanceRecord2.for_current_user.count
+    assert_equal 0, FinanceRecord.where(user: @user, audit_period: period).count
+    assert_equal 0, FinanceRecord2.where(user: @user, audit_period: period).count
   end
 
   test "should generate PDF successfully" do
